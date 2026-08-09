@@ -3,6 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "description": "Personal progress command center — daily tasks, goals, stats, and friend competition",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ishan1818/north.git"
+  },
+  "homepage": "https://github.com/Ishan1818/north#readme",
+  "bugs": {
+    "url": "https://github.com/Ishan1818/north/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
