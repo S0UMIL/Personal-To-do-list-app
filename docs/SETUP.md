@@ -15,7 +15,7 @@ This guide covers local development, Firebase configuration, and production depl
 ## 1. Clone and install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/north.git
+git clone https://github.com/Ishan1818/north.git
 cd north
 npm install
 ```

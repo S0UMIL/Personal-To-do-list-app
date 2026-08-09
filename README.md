@@ -25,7 +25,7 @@ North is a mobile-first productivity web app: one clean daily list, weekday sche
 ## Quick start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/north.git
+git clone https://github.com/Ishan1818/north.git
 cd north
 npm install
 npm run dev
@@ -37,6 +37,8 @@ Open [http://localhost:5173](http://localhost:5173).
 - **With Firebase:** copy `.env.example` to `.env`, fill in your keys, then sign in with Google.
 
 See [docs/SETUP.md](docs/SETUP.md) for full Firebase and deployment instructions.
+
+To publish this repository, see [docs/GITHUB.md](docs/GITHUB.md).
 
 ---
 
