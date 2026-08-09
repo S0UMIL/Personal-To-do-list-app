@@ -1,0 +1,95 @@
+/* Base tokens — shared across color themes */
+:root {
+  --bg: #08090c;
+  --bg-elevated: #0d0f14;
+  --surface: #13151a;
+  --surface-elevated: #1a1d24;
+  --surface-hover: #22262e;
+  --border: #2a2f38;
+  --border-subtle: #1e2229;
+  --text: #eceef2;
+  --text-secondary: #9aa3b0;
+  --text-muted: #5c6570;
+  --text-inverse: #0a0c10;
+  --success: #6b9e82;
+  --success-soft: rgba(107, 158, 130, 0.14);
+  --warning: #c9a227;
+  --error: #c47a7a;
+  --info: #7a9eb8;
+  --priority-high: #c47a7a;
+  --priority-low: #5c6570;
+  --accent-glow: rgba(107, 156, 212, 0.07);
+}
+
+/* Midnight — deep navy + steel blue */
+html[data-theme='midnight'],
+html:not([data-theme]) {
+  --accent: #6b9cd4;
+  --accent-soft: rgba(107, 156, 212, 0.14);
+  --accent-strong: #85aedc;
+  --accent-dim: #4a6d94;
+  --priority-medium: #6b9cd4;
+  --heat-0: #13151a;
+  --heat-1: #1a2230;
+  --heat-2: #2a3d52;
+  --heat-3: #4a6d94;
+  --heat-4: #6b9cd4;
+  --accent-glow: rgba(107, 156, 212, 0.08);
+}
+
+/* Forest — charcoal green + sage */
+html[data-theme='forest'] {
+  --bg: #0a0d0b;
+  --bg-elevated: #0f1310;
+  --surface: #141a16;
+  --surface-elevated: #1c2320;
+  --accent: #7db896;
+  --accent-soft: rgba(125, 184, 150, 0.14);
+  --accent-strong: #92c8a8;
+  --accent-dim: #4d7a62;
+  --priority-medium: #7db896;
+  --heat-0: #141a16;
+  --heat-1: #1c2820;
+  --heat-2: #2d4538;
+  --heat-3: #4d7a62;
+  --heat-4: #7db896;
+  --accent-glow: rgba(125, 184, 150, 0.08);
+}
+
+/* Copper — warm charcoal + terracotta */
+html[data-theme='copper'] {
+  --bg: #0c0a09;
+  --bg-elevated: #12100e;
+  --surface: #1a1714;
+  --surface-elevated: #232019;
+  --accent: #d4845a;
+  --accent-soft: rgba(212, 132, 90, 0.14);
+  --accent-strong: #e09870;
+  --accent-dim: #8a5538;
+  --priority-medium: #d4845a;
+  --heat-0: #1a1714;
+  --heat-1: #2a2218;
+  --heat-2: #4a3828;
+  --heat-3: #8a5538;
+  --heat-4: #d4845a;
+  --accent-glow: rgba(212, 132, 90, 0.08);
+}
+
+/* Lilac — violet dusk + soft lavender */
+html[data-theme='lilac'] {
+  --bg: #0c0a10;
+  --bg-elevated: #12101a;
+  --surface: #1a1724;
+  --surface-elevated: #221e2e;
+  --accent: #b8a0d8;
+  --accent-soft: rgba(184, 160, 216, 0.14);
+  --accent-strong: #c8b4e4;
+  --accent-dim: #7260a0;
+  --priority-medium: #b8a0d8;
+  --heat-0: #1a1724;
+  --heat-1: #242038;
+  --heat-2: #3d3558;
+  --heat-3: #7260a0;
+  --heat-4: #b8a0d8;
+  --accent-glow: rgba(184, 160, 216, 0.08);
+}

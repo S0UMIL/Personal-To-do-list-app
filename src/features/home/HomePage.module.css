@@ -1,0 +1,68 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.header {
+  padding-top: var(--space-2);
+}
+
+.greeting {
+  font-family: var(--font-serif);
+  font-size: clamp(1.85rem, 5vw, 2.35rem);
+  letter-spacing: -0.03em;
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-2);
+}
+
+.date {
+  color: var(--text-secondary);
+  font-size: var(--text-body);
+}
+
+.progressBlock {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5) 0;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.progressCopy h2 {
+  font-size: var(--text-caption);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: var(--space-2);
+}
+
+.progressCopy p:nth-child(2) {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
+}
+
+.insight {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  max-width: 200px;
+  line-height: var(--leading-snug);
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+}
+
+.listLabel {
+  font-size: var(--text-caption);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: var(--space-2);
+}

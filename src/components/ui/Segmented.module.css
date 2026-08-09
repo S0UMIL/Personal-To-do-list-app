@@ -1,0 +1,32 @@
+.root {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.item {
+  flex: 1;
+  height: 36px;
+  border-radius: calc(var(--radius-md) - 2px);
+  font-size: var(--text-caption);
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.item:hover {
+  color: var(--text-secondary);
+}
+
+.active {
+  background: var(--surface-elevated);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border);
+}

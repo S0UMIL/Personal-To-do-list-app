@@ -1,0 +1,140 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.back {
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+  width: fit-content;
+}
+
+.eyebrow {
+  font-size: var(--text-caption);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.title {
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-3);
+}
+
+.lead {
+  color: var(--text-secondary);
+  max-width: 40ch;
+  line-height: var(--leading-normal);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.widget {
+  background:
+    linear-gradient(160deg, rgba(200, 169, 107, 0.06), transparent 40%),
+    var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  min-height: 140px;
+}
+
+.medium {
+  grid-column: span 2;
+}
+
+.wLabel {
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.wStat {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-3);
+}
+
+.wTasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.wTasks li {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.done {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.bullet {
+  color: var(--accent);
+  width: 12px;
+}
+
+.quickAdd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: calc(100% - 1.5rem);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 550;
+}
+
+.plus {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: var(--text-inverse);
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.bigPct {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+
+.wSub {
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.wBar {
+  margin-top: auto;
+}
+
+.goalTitle {
+  font-size: var(--text-subheading);
+  font-weight: 550;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
+}

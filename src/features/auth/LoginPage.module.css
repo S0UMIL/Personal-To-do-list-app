@@ -1,0 +1,77 @@
+.page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+    var(--bg);
+}
+
+.card {
+  width: min(100%, 380px);
+  padding: var(--space-10) var(--space-8);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+
+.mark {
+  display: block;
+  width: 48px;
+  height: 2px;
+  margin: 0 auto var(--space-6);
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.title {
+  font-size: 2.25rem;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-3);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+  margin-bottom: var(--space-8);
+}
+
+.hint {
+  margin-top: var(--space-4);
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+  line-height: var(--leading-snug);
+}
+
+.setup {
+  padding: var(--space-4);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+  margin-bottom: var(--space-4);
+}
+
+.setup code {
+  font-size: 0.7rem;
+  color: var(--accent);
+}
+
+.setupHint {
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+}
+
+.offline {
+  margin-top: var(--space-6);
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.offline:hover {
+  color: var(--text-secondary);
+}

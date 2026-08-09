@@ -1,0 +1,114 @@
+.trend {
+  position: relative;
+  width: 100%;
+}
+
+.trendSvg {
+  width: 100%;
+  height: calc(100% - 24px);
+  overflow: visible;
+}
+
+.trendAxis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.trendMax {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  width: 100%;
+}
+
+.barCol {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar {
+  width: 100%;
+  background: linear-gradient(180deg, var(--accent), var(--accent-dim));
+  border-radius: 3px 3px 1px 1px;
+  min-height: 2px;
+}
+
+.heat {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11px, 1fr));
+  gap: 3px;
+}
+
+.heatCell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: var(--heat-0);
+  border: 1px solid var(--border-subtle);
+}
+
+.heatCell[data-level='1'] {
+  background: var(--heat-1);
+  border-color: transparent;
+}
+.heatCell[data-level='2'] {
+  background: var(--heat-2);
+  border-color: transparent;
+}
+.heatCell[data-level='3'] {
+  background: var(--heat-3);
+  border-color: transparent;
+}
+.heatCell[data-level='4'] {
+  background: var(--heat-4);
+  border-color: transparent;
+}
+
+.goalList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.goalRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.goalMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.goalMeta span:last-child {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.goalTrack {
+  height: 4px;
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.goalFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  border-radius: var(--radius-full);
+}
