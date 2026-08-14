@@ -25,8 +25,8 @@ North is a mobile-first productivity web app: one clean daily list, weekday sche
 ## Quick start
 
 ```bash
-git clone https://github.com/Ishan1818/north.git
-cd north
+git clone https://github.com/S0UMIL/Personal-To-do-list-app.git
+cd Personal-To-do-list-app
 npm install
 npm run dev
 ```
