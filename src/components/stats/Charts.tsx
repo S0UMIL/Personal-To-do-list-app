@@ -94,14 +94,16 @@ export function BarChart({ data, height = 120 }: BarChartProps) {
 interface HeatmapProps {
   data: DayActivity[]
   weeks?: number
+  dailyMinimum?: number
 }
 
-export function Heatmap({ data }: HeatmapProps) {
-  const level = (completed: number) => {
-    if (completed <= 0) return 0
-    if (completed === 1) return 1
-    if (completed <= 3) return 2
-    if (completed <= 5) return 3
+export function Heatmap({ data, dailyMinimum = 5 }: HeatmapProps) {
+  const minimum = Math.max(1, dailyMinimum)
+  const level = (day: DayActivity) => {
+    if (!day.successful) return 0
+    if (day.completed <= minimum) return 1
+    if (day.completed <= minimum + 2) return 2
+    if (day.completed <= minimum + 5) return 3
     return 4
   }
 
@@ -111,8 +113,8 @@ export function Heatmap({ data }: HeatmapProps) {
         <div
           key={d.date}
           className={styles.heatCell}
-          data-level={level(d.completed)}
-          title={`${format(parseISO(d.date), 'MMM d')}: ${d.completed} completed`}
+          data-level={level(d)}
+          title={`${format(parseISO(d.date), 'MMM d')}: ${d.completed} completed${d.successful ? ' · streak day' : ''}`}
         />
       ))}
     </div>

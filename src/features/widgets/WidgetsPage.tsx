@@ -16,6 +16,7 @@ import styles from './WidgetsPage.module.css'
 export function WidgetsPage() {
   const tasks = useAppStore((s) => s.tasks)
   const history = useAppStore((s) => s.history)
+  const dailyMinimum = useAppStore((s) => s.user.preferences.dailyMinimum ?? 5)
   const dailySelection = useAppStore((s) => s.dailySelection)
   const googleTasks = useAppStore((s) => s.googleTasks)
 
@@ -26,7 +27,7 @@ export function WidgetsPage() {
     [tasks, dailySelection, history, todayKey],
   )
   const stats = calcCompletion(today)
-  const streak = calcStreak(tasks, history)
+  const streak = calcStreak(history, dailyMinimum)
   const lockedIn =
     dailySelection.dateKey === todayKey && dailySelection.taskIds.length >= 5
   const alertCount = useMemo(

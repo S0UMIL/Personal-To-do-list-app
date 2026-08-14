@@ -26,6 +26,7 @@ export const seedUser: User = {
     notifications: true,
     defaultReminder: false,
     hapticFeedback: true,
+    dailyMinimum: 5,
   },
 }
 

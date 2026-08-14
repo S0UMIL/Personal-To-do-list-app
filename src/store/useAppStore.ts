@@ -385,6 +385,10 @@ export const useAppStore = create<AppState>()(
               state.user.preferences.colorTheme,
             )
           }
+          const min = state.user.preferences.dailyMinimum
+          if (typeof min !== 'number' || min < 1 || min > 20) {
+            state.user.preferences.dailyMinimum = 5
+          }
           if (!state.friends?.length) {
             state.friends = seedFriends
             state.friendActivities = seedFriendActivities

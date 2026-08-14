@@ -14,6 +14,7 @@ import styles from './HomePage.module.css'
 export function HomePage() {
   const tasks = useAppStore((s) => s.tasks)
   const history = useAppStore((s) => s.history)
+  const dailyMinimum = useAppStore((s) => s.user.preferences.dailyMinimum ?? 5)
   const dailySelection = useAppStore((s) => s.dailySelection)
   const toggleTask = useAppStore((s) => s.toggleTask)
   const navigate = useNavigate()
@@ -36,7 +37,7 @@ export function HomePage() {
   }, [tasks, history, dailySelection, todayKey])
 
   const stats = calcCompletion(todayTasks)
-  const streak = calcStreak(tasks, history)
+  const streak = calcStreak(history, dailyMinimum)
   const alertCount = useMemo(
     () => buildRecommendations(tasks, history).filter((r) => r.flagged).length,
     [tasks, history],

@@ -119,6 +119,28 @@ export function ProfilePage() {
         />
         <label className={styles.selectRow}>
           <div>
+            <span className={styles.toggleLabel}>Daily minimum</span>
+            <span className={styles.toggleDesc}>
+              Complete this many tasks per day to keep your streak
+            </span>
+          </div>
+          <select
+            value={user.preferences.dailyMinimum ?? 5}
+            onChange={(e) =>
+              updatePreferences({
+                dailyMinimum: Math.min(20, Math.max(1, Number(e.target.value))),
+              })
+            }
+          >
+            {[3, 4, 5, 6, 7, 8, 10, 12, 15].map((n) => (
+              <option key={n} value={n}>
+                {n} tasks / day
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className={styles.selectRow}>
+          <div>
             <span className={styles.toggleLabel}>Week starts on</span>
             <span className={styles.toggleDesc}>Affects weekly stats</span>
           </div>
