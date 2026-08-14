@@ -19,6 +19,7 @@ export function GoalDetailPage() {
   const goals = useAppStore((s) => s.goals)
   const tasks = useAppStore((s) => s.tasks)
   const history = useAppStore((s) => s.history)
+  const dailyMinimum = useAppStore((s) => s.user.preferences.dailyMinimum ?? 5)
   const toggleTask = useAppStore((s) => s.toggleTask)
   const deleteGoal = useAppStore((s) => s.deleteGoal)
   const { openQuickAdd } = useQuickAdd()
@@ -36,11 +37,16 @@ export function GoalDetailPage() {
     [tasks, goal],
   )
 
+  const areaTaskIds = useMemo(
+    () =>
+      goal
+        ? new Set(tasks.filter((t) => t.area === goal.area).map((t) => t.id))
+        : undefined,
+    [tasks, goal],
+  )
+
   const streak = goal
-    ? calcStreak(
-        tasks.filter((t) => t.area === goal.area),
-        history,
-      )
+    ? calcStreak(history, dailyMinimum, { taskIds: areaTaskIds })
     : 0
   const historySeries = goal
     ? buildActivitySeries(
@@ -48,6 +54,8 @@ export function GoalDetailPage() {
         lastNDays(14)[0],
         new Date(),
         history,
+        dailyMinimum,
+        areaTaskIds,
       )
     : []
 

@@ -23,6 +23,8 @@ export interface UserPreferences {
   notifications: boolean
   defaultReminder: boolean
   hapticFeedback: boolean
+  /** Tasks completed per day required to count as a successful streak day. */
+  dailyMinimum: number
 }
 
 export interface GoogleTasksConnection {

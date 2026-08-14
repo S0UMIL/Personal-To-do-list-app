@@ -4,6 +4,32 @@ import { toDateKey, lastNDays, subDays, parseISO, startOfDay } from './dates'
 import { format, eachDayOfInterval } from 'date-fns'
 import { isTaskScheduledOn, isCompletedOnDate } from './taskSchedule'
 
+export const DEFAULT_DAILY_MINIMUM = 5
+
+/** Count task completions recorded for a calendar day in local history. */
+export function countCompletionsForDate(
+  history: TaskHistoryEntry[],
+  dateKey: string,
+  taskIds?: Set<string>,
+): number {
+  return history.filter(
+    (h) =>
+      h.date === dateKey &&
+      h.completed &&
+      (!taskIds || taskIds.has(h.taskId)),
+  ).length
+}
+
+export function isSuccessfulStreakDay(
+  history: TaskHistoryEntry[],
+  dateKey: string,
+  dailyMinimum: number,
+  taskIds?: Set<string>,
+): boolean {
+  const minimum = Math.max(1, dailyMinimum)
+  return countCompletionsForDate(history, dateKey, taskIds) >= minimum
+}
+
 export interface CompletionStats {
   completed: number
   scheduled: number
@@ -16,6 +42,8 @@ export interface DayActivity {
   completed: number
   scheduled: number
   rate: number
+  /** Met the user's daily minimum for streak purposes. */
+  successful: boolean
 }
 
 export interface WeeklySummary {
@@ -128,12 +156,14 @@ export function buildActivitySeries(
   start: Date,
   end: Date,
   history: TaskHistoryEntry[] = [],
+  dailyMinimum: number = DEFAULT_DAILY_MINIMUM,
+  taskIds?: Set<string>,
 ): DayActivity[] {
+  const minimum = Math.max(1, dailyMinimum)
   const days = eachDayOfInterval({ start: startOfDay(start), end: startOfDay(end) })
   return days.map((day) => {
     const key = toDateKey(day)
-    const completed = history.filter((h) => h.date === key && h.completed).length
-    // Prefer history density for library-based model; fall back to scheduled tasks
+    const completed = countCompletionsForDate(history, key, taskIds)
     const dayTasks = getTasksForDate(tasks, key, history)
     const scheduled = Math.max(dayTasks.length, completed)
     const rate = scheduled === 0 ? 0 : Math.round((completed / scheduled) * 100)
@@ -142,37 +172,33 @@ export function buildActivitySeries(
       completed,
       scheduled,
       rate,
+      successful: completed >= minimum,
     }
   })
 }
 
-/** Consecutive days (ending today or yesterday) with ≥1 completed task */
-export function calcStreak(tasks: Task[], history: TaskHistoryEntry[] = []): number {
-  const completedDates = new Set<string>()
+/**
+ * Consecutive successful days ending today (if met) or yesterday (if today still in progress).
+ * A successful day means completions >= dailyMinimum from local history.
+ */
+export function calcStreak(
+  history: TaskHistoryEntry[] = [],
+  dailyMinimum: number = DEFAULT_DAILY_MINIMUM,
+  options?: { now?: Date; taskIds?: Set<string> },
+): number {
+  const now = options?.now ?? new Date()
+  const taskIds = options?.taskIds
+  const todayKey = toDateKey(now)
+  const todaySuccess = isSuccessfulStreakDay(history, todayKey, dailyMinimum, taskIds)
 
-  for (const t of tasks) {
-    if (t.status === 'completed' && t.completedAt) {
-      completedDates.add(toDateKey(t.completedAt))
-    } else if (t.status === 'completed') {
-      completedDates.add(t.dueDate)
-    }
-  }
-
-  for (const h of history) {
-    if (h.completed && h.completedAt) completedDates.add(toDateKey(h.completedAt))
-    else if (h.completed) completedDates.add(h.date)
-  }
-
-  let streak = 0
-  let cursor = startOfDay(new Date())
-  const todayKey = toDateKey(cursor)
-
-  // Allow streak to continue if today has no completions yet but yesterday did
-  if (!completedDates.has(todayKey)) {
+  let cursor = startOfDay(now)
+  if (!todaySuccess) {
+    // Today has not met the minimum yet — keep the prior streak while the day is in progress.
     cursor = subDays(cursor, 1)
   }
 
-  while (completedDates.has(toDateKey(cursor))) {
+  let streak = 0
+  while (isSuccessfulStreakDay(history, toDateKey(cursor), dailyMinimum, taskIds)) {
     streak += 1
     cursor = subDays(cursor, 1)
   }
@@ -180,24 +206,25 @@ export function calcStreak(tasks: Task[], history: TaskHistoryEntry[] = []): num
   return streak
 }
 
-export function calcLongestStreak(tasks: Task[], lookbackDays = 365): number {
+export function calcLongestStreak(
+  history: TaskHistoryEntry[] = [],
+  dailyMinimum: number = DEFAULT_DAILY_MINIMUM,
+  lookbackDays = 365,
+  taskIds?: Set<string>,
+): number {
   const days = lastNDays(lookbackDays)
-  const completedByDay = new Set(
-    tasks
-      .filter((t) => t.status === 'completed')
-      .map((t) => (t.completedAt ? toDateKey(t.completedAt) : t.dueDate)),
-  )
-
   let longest = 0
   let current = 0
+
   for (const day of days) {
-    if (completedByDay.has(toDateKey(day))) {
+    if (isSuccessfulStreakDay(history, toDateKey(day), dailyMinimum, taskIds)) {
       current += 1
       longest = Math.max(longest, current)
     } else {
       current = 0
     }
   }
+
   return longest
 }
 
@@ -245,10 +272,12 @@ export function calcWeeklySummary(
   tasks: Task[],
   start: Date,
   end: Date,
+  history: TaskHistoryEntry[] = [],
+  dailyMinimum: number = DEFAULT_DAILY_MINIMUM,
 ): WeeklySummary {
   const periodTasks = tasks.filter((t) => inRange(t.dueDate, start, end))
   const stats = calcCompletion(periodTasks)
-  const series = buildActivitySeries(tasks, start, end)
+  const series = buildActivitySeries(tasks, start, end, history, dailyMinimum)
 
   let bestDay: string | null = null
   let bestCount = -1
@@ -295,10 +324,12 @@ export function calcMonthlyOverview(
   goals: Goal[],
   start: Date,
   end: Date,
+  history: TaskHistoryEntry[] = [],
+  dailyMinimum: number = DEFAULT_DAILY_MINIMUM,
 ): MonthlyOverview {
   const periodTasks = tasks.filter((t) => inRange(t.dueDate, start, end))
   const stats = calcCompletion(periodTasks)
-  const series = buildActivitySeries(tasks, start, end)
+  const series = buildActivitySeries(tasks, start, end, history, dailyMinimum)
   const daysWithTasks = series.filter((d) => d.scheduled > 0).length || 1
 
   let bestDay: string | null = null
@@ -339,7 +370,7 @@ export function calcMonthlyOverview(
     completionRate: stats.rate,
     missedTasks: stats.missed,
     averageDailyCompletion: Math.round((stats.completed / daysWithTasks) * 10) / 10,
-    longestStreak: calcLongestStreak(tasks),
+    longestStreak: calcLongestStreak(history, dailyMinimum),
     goalsCompleted,
     mostProductiveDay: bestCount > 0 ? bestDay : null,
     mostProductiveTime,
