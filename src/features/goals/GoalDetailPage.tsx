@@ -3,12 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { useQuickAdd } from '../../components/layout/AppShell'
-import { ProgressBar } from '../../components/ui/Progress'
 import { TaskRow } from '../../components/tasks/TaskRow'
 import { Button } from '../../components/ui/Button'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { daysRemaining, formatShortDate, toDateKey } from '../../lib/dates'
-import { areaProgress, calcStreak, buildActivitySeries } from '../../lib/stats'
+import { areaTaskCounts, calcStreak, buildActivitySeries } from '../../lib/stats'
 import { lastNDays } from '../../lib/dates'
 import { getAreaLabel } from '../../lib/taskAreas'
 import { BarChart } from '../../components/stats/Charts'
@@ -19,28 +18,29 @@ export function GoalDetailPage() {
   const navigate = useNavigate()
   const goals = useAppStore((s) => s.goals)
   const tasks = useAppStore((s) => s.tasks)
+  const history = useAppStore((s) => s.history)
   const toggleTask = useAppStore((s) => s.toggleTask)
   const deleteGoal = useAppStore((s) => s.deleteGoal)
   const { openQuickAdd } = useQuickAdd()
 
   const goal = goals.find((g) => g.id === id)
-
-  const progress = goal ? areaProgress(goal.area, tasks) : 0
+  const counts = goal ? areaTaskCounts(goal.area, tasks, history) : { done: 0, total: 0 }
   const remaining = goal ? daysRemaining(goal.deadline) : null
   const connected = useMemo(
     () =>
       goal
         ? tasks
             .filter((t) => t.area === goal.area)
-            .sort((a, b) => b.dueDate.localeCompare(a.dueDate))
-            .slice(0, 12)
+            .sort((a, b) => a.title.localeCompare(b.title))
         : [],
     [tasks, goal],
   )
 
-  const history = useAppStore((s) => s.history)
   const streak = goal
-    ? calcStreak(tasks.filter((t) => t.area === goal.area))
+    ? calcStreak(
+        tasks.filter((t) => t.area === goal.area),
+        history,
+      )
     : 0
   const historySeries = goal
     ? buildActivitySeries(
@@ -81,8 +81,10 @@ export function GoalDetailPage() {
 
       <section className={styles.metrics}>
         <div>
-          <p className={styles.metricLabel}>Progress</p>
-          <p className={`${styles.metricValue} tabular`}>{progress}%</p>
+          <p className={styles.metricLabel}>Today</p>
+          <p className={`${styles.metricValue} tabular`}>
+            {counts.done}/{counts.total}
+          </p>
         </div>
         <div>
           <p className={styles.metricLabel}>Remaining</p>
@@ -96,7 +98,12 @@ export function GoalDetailPage() {
         </div>
       </section>
 
-      <ProgressBar value={progress} height={6} />
+      <p className={styles.statusLine}>
+        {counts.total === 0
+          ? 'No linked tasks in this area yet.'
+          : `${counts.done} of ${counts.total} linked tasks done today.`}
+      </p>
+
       {goal.deadline && (
         <p className={styles.deadline}>Deadline {formatShortDate(goal.deadline)}</p>
       )}

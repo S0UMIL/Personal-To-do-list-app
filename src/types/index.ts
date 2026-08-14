@@ -25,6 +25,14 @@ export interface UserPreferences {
   hapticFeedback: boolean
 }
 
+export interface GoogleTasksConnection {
+  connected: boolean
+  accessToken: string | null
+  listId: string | null
+  lastSyncedAt: string | null
+  syncError: string | null
+}
+
 export interface Friend {
   id: string
   name: string
@@ -43,6 +51,17 @@ export interface User {
   id: string
   name: string
   preferences: UserPreferences
+}
+
+export interface DailySelection {
+  dateKey: string
+  taskIds: string[]
+}
+
+export interface OnboardingTaskDraft {
+  title: string
+  priority: TaskPriority
+  area?: TaskArea
 }
 
 export interface Category {
@@ -95,6 +114,7 @@ export interface Task {
   notes?: string
   createdAt: string
   completedAt?: string
+  googleTaskId?: string
 }
 
 export interface TaskHistoryEntry {

@@ -1,10 +1,19 @@
-import type { Category, Goal, Milestone, Task, TaskHistoryEntry, User, Friend, FriendActivity } from '../types'
-import { toDateKey, subDays, addDays } from '../lib/dates'
+import type {
+  Category,
+  Goal,
+  Milestone,
+  Task,
+  TaskHistoryEntry,
+  User,
+  Friend,
+  FriendActivity,
+  DailySelection,
+} from '../types'
+import { toDateKey, subDays } from '../lib/dates'
 import { format } from 'date-fns'
 
 const today = new Date()
 const todayKey = toDateKey(today)
-const d = (offset: number) => toDateKey(addDays(today, offset))
 const past = (offset: number) => toDateKey(subDays(today, offset))
 
 export const seedUser: User = {
@@ -91,53 +100,47 @@ export const seedGoals: Goal[] = [
 export const seedMilestones: Milestone[] = []
 
 function task(
-  partial: Omit<Task, 'createdAt' | 'status'> & { status?: Task['status']; createdAt?: string; completedAt?: string },
+  partial: Omit<Task, 'createdAt' | 'status' | 'dueDate' | 'timeOfDay' | 'recurrence'> & {
+    status?: Task['status']
+    createdAt?: string
+    completedAt?: string
+    dueDate?: string
+    timeOfDay?: Task['timeOfDay']
+    recurrence?: Task['recurrence']
+  },
 ): Task {
   return {
     status: 'todo',
-    createdAt: past(2),
+    dueDate: todayKey,
+    timeOfDay: 'anytime',
+    recurrence: 'none',
+    createdAt: past(30),
     ...partial,
   }
 }
 
+/** Standing task library (10–15 items). */
 export const seedTasks: Task[] = [
   task({
     id: 'task_gym',
     title: 'Workout',
-    dueDate: todayKey,
-    dueTime: '07:00',
-    timeOfDay: 'morning',
     priority: 'high',
-    recurrence: 'custom',
-    scheduleDays: [1, 3, 5],
     area: 'fitness',
     categoryId: 'cat_fitness',
     estimatedMinutes: 60,
-    status: 'completed',
-    completedAt: `${todayKey}T07:45:00`,
   }),
   task({
     id: 'task_read',
     title: 'Read 20 pages',
-    dueDate: todayKey,
-    dueTime: '08:00',
-    timeOfDay: 'morning',
     priority: 'medium',
-    recurrence: 'daily',
     area: 'habit',
     categoryId: 'cat_personal',
     estimatedMinutes: 30,
-    status: 'completed',
-    completedAt: `${todayKey}T08:20:00`,
   }),
   task({
     id: 'task_sql_review',
     title: 'Review SQL',
-    dueDate: todayKey,
-    dueTime: '09:00',
-    timeOfDay: 'morning',
     priority: 'high',
-    recurrence: 'weekdays',
     area: 'studies',
     categoryId: 'cat_learning',
     estimatedMinutes: 45,
@@ -146,11 +149,7 @@ export const seedTasks: Task[] = [
     id: 'task_dsa',
     title: 'Complete DSA problems',
     description: 'Solve 2 LeetCode medium problems',
-    dueDate: todayKey,
-    dueTime: '14:00',
-    timeOfDay: 'afternoon',
     priority: 'high',
-    recurrence: 'weekdays',
     area: 'studies',
     categoryId: 'cat_learning',
     estimatedMinutes: 90,
@@ -158,11 +157,7 @@ export const seedTasks: Task[] = [
   task({
     id: 'task_project',
     title: 'Work on project',
-    dueDate: todayKey,
-    dueTime: '16:00',
-    timeOfDay: 'afternoon',
     priority: 'medium',
-    recurrence: 'none',
     area: 'work',
     categoryId: 'cat_projects',
     estimatedMinutes: 120,
@@ -170,21 +165,14 @@ export const seedTasks: Task[] = [
   task({
     id: 'task_steps',
     title: '8,000 steps',
-    dueDate: todayKey,
-    timeOfDay: 'afternoon',
     priority: 'medium',
-    recurrence: 'daily',
     area: 'fitness',
     categoryId: 'cat_fitness',
   }),
   task({
     id: 'task_journal',
     title: 'Journal',
-    dueDate: todayKey,
-    dueTime: '21:00',
-    timeOfDay: 'evening',
     priority: 'low',
-    recurrence: 'daily',
     area: 'personal',
     categoryId: 'cat_personal',
     estimatedMinutes: 15,
@@ -192,11 +180,7 @@ export const seedTasks: Task[] = [
   task({
     id: 'task_plan',
     title: 'Plan tomorrow',
-    dueDate: todayKey,
-    dueTime: '21:30',
-    timeOfDay: 'evening',
     priority: 'medium',
-    recurrence: 'daily',
     area: 'habit',
     categoryId: 'cat_personal',
     estimatedMinutes: 10,
@@ -204,83 +188,98 @@ export const seedTasks: Task[] = [
   task({
     id: 'task_water',
     title: 'Drink 3L water',
-    dueDate: todayKey,
-    timeOfDay: 'anytime',
     priority: 'low',
-    recurrence: 'daily',
     area: 'fitness',
     categoryId: 'cat_fitness',
-    status: 'completed',
-    completedAt: `${todayKey}T18:00:00`,
   }),
   task({
     id: 'task_calories',
     title: 'Track calories',
-    dueDate: todayKey,
-    timeOfDay: 'anytime',
     priority: 'medium',
-    recurrence: 'daily',
     area: 'fitness',
     categoryId: 'cat_fitness',
   }),
   task({
-    id: 'task_cte',
-    title: 'Practice CTEs',
-    dueDate: d(1),
-    dueTime: '10:00',
-    timeOfDay: 'morning',
-    priority: 'high',
-    recurrence: 'none',
-    area: 'studies',
-    categoryId: 'cat_learning',
+    id: 'task_meditate',
+    title: 'Meditate 10 min',
+    priority: 'low',
+    area: 'habit',
+    estimatedMinutes: 10,
   }),
-  ...Array.from({ length: 45 }, (_, i) => {
-    const dayOffset = i + 1
-    const date = past(dayOffset)
-    const completedCount = 4 + ((i * 3) % 5)
-    const areas: Task['area'][] = ['studies', 'fitness', 'work', 'habit', 'personal']
-    return Array.from({ length: completedCount }, (_, j) =>
-      task({
-        id: `hist_task_${dayOffset}_${j}`,
-        title: `Focus block ${j + 1}`,
-        dueDate: date,
-        dueTime: `${9 + j}:00`,
-        timeOfDay: j < 2 ? 'morning' : j < 4 ? 'afternoon' : 'evening',
-        priority: j === 0 ? 'high' : 'medium',
-        recurrence: 'none',
-        area: areas[j % areas.length],
-        categoryId: j % 2 === 0 ? 'cat_learning' : 'cat_fitness',
-        status: 'completed',
-        completedAt: `${date}T${String(10 + j).padStart(2, '0')}:30:00`,
-        createdAt: date,
-      }),
-    )
-  }).flat(),
-  ...[2, 5, 9].map((offset, idx) =>
-    task({
-      id: `missed_${idx}`,
-      title: 'Inbox zero sweep',
-      dueDate: past(offset),
-      timeOfDay: 'afternoon',
-      priority: 'low',
-      recurrence: 'none',
-      area: 'personal',
-      categoryId: 'cat_personal',
-      status: 'todo',
-      createdAt: past(offset + 1),
-    }),
-  ),
+  task({
+    id: 'task_inbox',
+    title: 'Clear inbox',
+    priority: 'medium',
+    area: 'work',
+    categoryId: 'cat_projects',
+    estimatedMinutes: 20,
+  }),
 ]
 
-export const seedHistory: TaskHistoryEntry[] = seedTasks
-  .filter((t) => t.status === 'completed')
-  .map((t) => ({
-    id: `hist_${t.id}`,
-    taskId: t.id,
-    date: t.dueDate,
-    completed: true,
-    completedAt: t.completedAt,
-  }))
+export const seedDailySelection: DailySelection = {
+  dateKey: todayKey,
+  taskIds: [
+    'task_gym',
+    'task_sql_review',
+    'task_dsa',
+    'task_project',
+    'task_read',
+    'task_water',
+  ],
+}
+
+export const seedOnboardingComplete = false
+
+function buildSeedHistory(): TaskHistoryEntry[] {
+  const entries: TaskHistoryEntry[] = []
+  const library = seedTasks
+
+  // Varied skip gaps so recommendations have something to flag
+  const lastDoneOffset: Record<string, number> = {
+    task_gym: 5, // high, flagged
+    task_read: 2,
+    task_sql_review: 1,
+    task_dsa: 0,
+    task_project: 3,
+    task_steps: 6, // medium, flagged
+    task_journal: 4,
+    task_plan: 1,
+    task_water: 0,
+    task_calories: 8, // medium-ish overdue
+    task_meditate: 10, // low, flagged
+    task_inbox: 2,
+  }
+
+  for (const t of library) {
+    const offset = lastDoneOffset[t.id] ?? 3
+    // Sprinkle completions going back so streaks/stats look alive
+    for (let day = offset; day < 28; day += 2 + (t.id.length % 3)) {
+      const date = past(day)
+      entries.push({
+        id: `hist_${t.id}_${date}`,
+        taskId: t.id,
+        date,
+        completed: true,
+        completedAt: `${date}T10:30:00`,
+      })
+    }
+  }
+
+  // Today's completions for selected tasks already done
+  for (const id of ['task_dsa', 'task_water']) {
+    entries.push({
+      id: `hist_${id}_${todayKey}`,
+      taskId: id,
+      date: todayKey,
+      completed: true,
+      completedAt: `${todayKey}T09:15:00`,
+    })
+  }
+
+  return entries
+}
+
+export const seedHistory: TaskHistoryEntry[] = buildSeedHistory()
 
 export const seedFriends: Friend[] = [
   { id: 'friend_riya', name: 'Riya', color: '#a78bfa' },

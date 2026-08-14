@@ -69,6 +69,12 @@
   margin-top: calc(var(--space-2) * -1);
 }
 
+.statusLine {
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+  line-height: var(--leading-snug);
+}
+
 .section h2 {
   font-size: var(--text-caption);
   letter-spacing: 0.1em;

@@ -38,11 +38,14 @@
   font-size: var(--text-subheading);
   font-weight: 550;
   letter-spacing: -0.02em;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
-.bar {
+.status {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
   margin-bottom: var(--space-3);
+  line-height: var(--leading-snug);
 }
 
 .footer {

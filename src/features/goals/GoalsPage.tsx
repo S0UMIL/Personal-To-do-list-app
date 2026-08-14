@@ -5,7 +5,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { Button } from '../../components/ui/Button'
 import { BottomSheet } from '../../components/ui/BottomSheet'
 import { Input, TextArea } from '../../components/ui/Input'
-import { areaProgress } from '../../lib/stats'
+import { areaTaskCounts } from '../../lib/stats'
 import { TASK_AREAS } from '../../lib/taskAreas'
 import type { TaskArea } from '../../types'
 import styles from './GoalsPage.module.css'
@@ -13,6 +13,7 @@ import styles from './GoalsPage.module.css'
 export function GoalsPage() {
   const goals = useAppStore((s) => s.goals)
   const tasks = useAppStore((s) => s.tasks)
+  const history = useAppStore((s) => s.history)
   const addGoal = useAppStore((s) => s.addGoal)
 
   const [open, setOpen] = useState(false)
@@ -67,19 +68,13 @@ export function GoalsPage() {
       ) : (
         <div className={styles.list}>
           {visible.map((goal) => {
-            const areaTasks = tasks.filter((t) => t.area === goal.area)
-            const completed = areaTasks.filter((t) => t.status === 'completed').length
-            const progress = areaProgress(goal.area, tasks)
+            const counts = areaTaskCounts(goal.area, tasks, history)
             return (
               <GoalCard
                 key={goal.id}
                 goal={goal}
-                progress={progress}
-                milestoneSummary={
-                  areaTasks.length > 0
-                    ? `${completed}/${areaTasks.length} tasks`
-                    : undefined
-                }
+                done={counts.done}
+                total={counts.total}
               />
             )
           })}

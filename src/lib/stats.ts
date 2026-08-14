@@ -47,12 +47,36 @@ export function getTasksForDate(
   tasks: Task[],
   dateKey: string,
   history: TaskHistoryEntry[] = [],
+  dailySelection?: { dateKey: string; taskIds: string[] } | null,
 ): Task[] {
+  if (dailySelection && dailySelection.dateKey === dateKey) {
+    return dailySelection.taskIds
+      .map((id) => tasks.find((t) => t.id === id))
+      .filter((t): t is Task => Boolean(t))
+      .map((t) => ({
+        ...t,
+        status: taskStatusOnDate(t, dateKey, history),
+      }))
+  }
+
   const date = parseISO(dateKey)
   return tasks.filter((t) => isTaskScheduledOn(t, date)).map((t) => ({
     ...t,
     status: taskStatusOnDate(t, dateKey, history),
   }))
+}
+
+/** Today's list from daily selection (empty if not locked in). */
+export function getTodaySelectedTasks(
+  tasks: Task[],
+  dailySelection: { dateKey: string; taskIds: string[] },
+  history: TaskHistoryEntry[],
+  todayKey: string = toDateKey(new Date()),
+): Task[] {
+  if (dailySelection.dateKey !== todayKey || dailySelection.taskIds.length === 0) {
+    return []
+  }
+  return getTasksForDate(tasks, todayKey, history, dailySelection)
 }
 
 function taskStatusOnDate(
@@ -108,13 +132,16 @@ export function buildActivitySeries(
   const days = eachDayOfInterval({ start: startOfDay(start), end: startOfDay(end) })
   return days.map((day) => {
     const key = toDateKey(day)
+    const completed = history.filter((h) => h.date === key && h.completed).length
+    // Prefer history density for library-based model; fall back to scheduled tasks
     const dayTasks = getTasksForDate(tasks, key, history)
-    const stats = calcCompletion(dayTasks)
+    const scheduled = Math.max(dayTasks.length, completed)
+    const rate = scheduled === 0 ? 0 : Math.round((completed / scheduled) * 100)
     return {
       date: key,
-      completed: stats.completed,
-      scheduled: stats.scheduled,
-      rate: stats.rate,
+      completed,
+      scheduled,
+      rate,
     }
   })
 }
@@ -174,11 +201,31 @@ export function calcLongestStreak(tasks: Task[], lookbackDays = 365): number {
   return longest
 }
 
-export function areaProgress(area: TaskArea, tasks: Task[]): number {
+export function areaProgress(
+  area: TaskArea,
+  tasks: Task[],
+  history: TaskHistoryEntry[] = [],
+  todayKey: string = toDateKey(new Date()),
+): number {
   const linked = tasks.filter((t) => t.area === area)
   if (linked.length === 0) return 0
-  const done = linked.filter((t) => t.status === 'completed').length
+  const done = linked.filter((t) =>
+    history.some((h) => h.taskId === t.id && h.date === todayKey && h.completed),
+  ).length
   return Math.round((done / linked.length) * 100)
+}
+
+export function areaTaskCounts(
+  area: TaskArea,
+  tasks: Task[],
+  history: TaskHistoryEntry[] = [],
+  todayKey: string = toDateKey(new Date()),
+): { done: number; total: number } {
+  const linked = tasks.filter((t) => t.area === area)
+  const done = linked.filter((t) =>
+    history.some((h) => h.taskId === t.id && h.date === todayKey && h.completed),
+  ).length
+  return { done, total: linked.length }
 }
 
 export function goalProgress(goalId: string, milestones: Milestone[], tasks: Task[]): number {

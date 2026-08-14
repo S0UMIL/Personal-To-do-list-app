@@ -16,9 +16,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "supabase:types": "supabase gen types typescript --linked > src/types/database.ts",
+    "supabase:push": "supabase db push"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.3",
     "date-fns": "^4.4.0",
     "firebase": "^12.17.1",
     "framer-motion": "^13.0.0",

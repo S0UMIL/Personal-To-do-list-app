@@ -1,25 +1,67 @@
 import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext'
+import { useCloudIdentity } from '../../hooks/useCloudIdentity'
 import { useAppStore } from '../../store/useAppStore'
 import { Input } from '../../components/ui/Input'
 import { Button } from '../../components/ui/Button'
 import { COLOR_THEMES } from '../../lib/themes'
+import { connectGoogleTasksApi } from '../../services/cloud'
+import { ensureNorthTaskList } from '../../services/googleTasks'
+import { SupabaseConnectionPanel } from '../../components/supabase/SupabaseConnectionPanel'
 import styles from './ProfilePage.module.css'
 
 export function ProfilePage() {
-  const { profile, isAuthenticated, signOut } = useAuth()
+  const firebase = useAuth()
+  const supabase = useSupabaseAuth()
+  const identity = useCloudIdentity()
+  const { signOut: firebaseSignOut } = firebase
   const user = useAppStore((s) => s.user)
   const setUserName = useAppStore((s) => s.setUserName)
   const updatePreferences = useAppStore((s) => s.updatePreferences)
   const resetDemoData = useAppStore((s) => s.resetDemoData)
+  const googleTasks = useAppStore((s) => s.googleTasks)
+  const connectGoogleTasks = useAppStore((s) => s.connectGoogleTasks)
+  const disconnectGoogleTasks = useAppStore((s) => s.disconnectGoogleTasks)
+  const [connectingTasks, setConnectingTasks] = useState(false)
+  const [connectError, setConnectError] = useState<string | null>(null)
 
   const colorTheme = user.preferences.colorTheme ?? 'midnight'
 
   const copyId = () => {
-    if (profile?.friendCode) {
-      navigator.clipboard.writeText(profile.friendCode)
+    if (identity.friendCode) {
+      navigator.clipboard.writeText(identity.friendCode)
     }
   }
+
+  const handleSignOut = async () => {
+    await supabase.signOut().catch(() => undefined)
+    await firebaseSignOut()
+  }
+
+  const handleConnectGoogleTasks = async () => {
+    setConnectError(null)
+    setConnectingTasks(true)
+    try {
+      const accessToken = await connectGoogleTasksApi()
+      const listId = await ensureNorthTaskList(accessToken)
+      connectGoogleTasks(accessToken, listId)
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Could not connect Google Tasks'
+      setConnectError(message)
+    } finally {
+      setConnectingTasks(false)
+    }
+  }
+
+  const lastSyncedLabel = googleTasks.lastSyncedAt
+    ? new Date(googleTasks.lastSyncedAt).toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+      })
+    : null
 
   return (
     <div className={styles.page}>
@@ -28,19 +70,21 @@ export function ProfilePage() {
         <h1 className={`serif ${styles.title}`}>Profile</h1>
       </header>
 
-      {isAuthenticated && profile && (
+      {identity.isAuthenticated && identity.friendCode && (
         <section className={styles.section}>
           <h2>Your ID</h2>
           <p className={styles.appearance}>
             Share this with friends so they can add you on the leaderboard.
           </p>
           <div className={styles.idBox}>
-            <code className={styles.friendCode}>{profile.friendCode}</code>
+            <code className={styles.friendCode}>{identity.friendCode}</code>
             <Button size="sm" variant="secondary" onClick={copyId}>
               Copy
             </Button>
           </div>
-          <p className={styles.uid}>Account · {profile.uid.slice(0, 12)}…</p>
+          {identity.uid && (
+            <p className={styles.uid}>Account · {identity.uid.slice(0, 12)}…</p>
+          )}
         </section>
       )}
 
@@ -76,7 +120,7 @@ export function ProfilePage() {
         <label className={styles.selectRow}>
           <div>
             <span className={styles.toggleLabel}>Week starts on</span>
-            <span className={styles.toggleDesc}>Affects calendar and weekly stats</span>
+            <span className={styles.toggleDesc}>Affects weekly stats</span>
           </div>
           <select
             value={user.preferences.weekStartsOn}
@@ -120,6 +164,47 @@ export function ProfilePage() {
       </section>
 
       <section className={styles.section}>
+        <h2>Google Tasks</h2>
+        <p className={styles.appearance}>
+          Sync today&apos;s locked-in tasks to a &quot;North&quot; list in Google
+          Tasks so reminders and notifications run through Google.
+        </p>
+        {googleTasks.connected ? (
+          <div className={styles.googleTasksStatus}>
+            <p className={styles.googleTasksConnected}>Connected</p>
+            {lastSyncedLabel && (
+              <p className={styles.googleTasksMeta}>
+                Last synced · {lastSyncedLabel}
+              </p>
+            )}
+            {googleTasks.syncError && (
+              <p className={styles.googleTasksError}>{googleTasks.syncError}</p>
+            )}
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => disconnectGoogleTasks()}
+            >
+              Disconnect
+            </Button>
+          </div>
+        ) : (
+          <div className={styles.googleTasksStatus}>
+            {connectError && (
+              <p className={styles.googleTasksError}>{connectError}</p>
+            )}
+            <Button
+              variant="secondary"
+              onClick={handleConnectGoogleTasks}
+              disabled={connectingTasks}
+            >
+              {connectingTasks ? 'Connecting…' : 'Connect Google Tasks'}
+            </Button>
+          </div>
+        )}
+      </section>
+
+      <section className={styles.section}>
         <h2>Widgets</h2>
         <p className={styles.appearance}>
           Preview home-screen widget concepts designed for glanceable progress.
@@ -129,6 +214,8 @@ export function ProfilePage() {
         </Link>
       </section>
 
+      <SupabaseConnectionPanel />
+
       <section className={styles.section}>
         <h2>Data</h2>
         <Button variant="secondary" onClick={resetDemoData}>
@@ -136,9 +223,9 @@ export function ProfilePage() {
         </Button>
       </section>
 
-      {isAuthenticated && (
+      {identity.isAuthenticated && (
         <section className={styles.section}>
-          <Button variant="secondary" onClick={() => signOut()}>
+          <Button variant="secondary" onClick={handleSignOut}>
             Sign out
           </Button>
         </section>

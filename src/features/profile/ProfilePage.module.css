@@ -175,3 +175,31 @@
   font-size: var(--text-caption);
   color: var(--text-muted);
 }
+
+.googleTasksStatus {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.googleTasksConnected {
+  color: var(--accent);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.googleTasksMeta {
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+}
+
+.googleTasksError {
+  color: #e07a6a;
+  font-size: var(--text-caption);
+  max-width: 40ch;
+  line-height: var(--leading-snug);
+}

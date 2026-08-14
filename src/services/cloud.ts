@@ -1,6 +1,7 @@
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  reauthenticateWithPopup,
   signOut as firebaseSignOut,
   type User as FirebaseUser,
 } from 'firebase/auth'
@@ -62,6 +63,38 @@ export async function signInWithGoogle(): Promise<CloudUserProfile> {
 
 export async function signOutCloud(): Promise<void> {
   await firebaseSignOut(getFirebaseAuth())
+}
+
+function googleTasksProvider(): GoogleAuthProvider {
+  const provider = new GoogleAuthProvider()
+  provider.addScope('https://www.googleapis.com/auth/tasks')
+  return provider
+}
+
+function accessTokenFromResult(
+  result: Awaited<ReturnType<typeof signInWithPopup>>,
+): string {
+  const credential = GoogleAuthProvider.credentialFromResult(result)
+  if (!credential?.accessToken) {
+    throw new Error('Google Tasks permission was not granted')
+  }
+  return credential.accessToken
+}
+
+/** Request Google Tasks scope and return a short-lived OAuth access token */
+export async function connectGoogleTasksApi(): Promise<string> {
+  const auth = getFirebaseAuth()
+  const provider = googleTasksProvider()
+  const current = auth.currentUser
+
+  if (current) {
+    const result = await reauthenticateWithPopup(current, provider)
+    return accessTokenFromResult(result)
+  }
+
+  const result = await signInWithPopup(auth, provider)
+  await upsertUserProfile(result.user)
+  return accessTokenFromResult(result)
 }
 
 export async function upsertUserProfile(fbUser: FirebaseUser): Promise<CloudUserProfile> {

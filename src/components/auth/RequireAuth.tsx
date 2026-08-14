@@ -1,9 +1,19 @@
 import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext'
+import { useCloudIdentity } from '../../hooks/useCloudIdentity'
+import { hasAuthCallback } from '../../lib/authCallback'
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { loading, isAuthenticated, isOfflineMode } = useAuth()
+  const { loading, isAuthenticated, isOfflineMode } = useCloudIdentity()
   const location = useLocation()
+
+  if (hasAuthCallback(location.search, location.hash)) {
+    return (
+      <Navigate
+        to={`/login${location.search}${location.hash}`}
+        replace
+      />
+    )
+  }
 
   if (loading) {
     return (
@@ -12,11 +22,12 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
           minHeight: '100dvh',
           display: 'grid',
           placeItems: 'center',
-          color: 'var(--text-muted)',
+          background: 'var(--bg, #08090c)',
+          color: 'var(--text-muted, #8b909a)',
           fontSize: '0.875rem',
         }}
       >
-        Loading…
+        Signing you in…
       </div>
     )
   }

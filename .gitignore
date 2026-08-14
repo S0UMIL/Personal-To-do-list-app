@@ -12,7 +12,25 @@ dist
 dist-ssr
 *.local
 .env
+.env.*
+!.env.example
 .env.local
+.env.production
+.env.development
+
+# Secrets and credentials (never commit)
+*service_role*
+*service-role*
+**/supabase/.env
+**/supabase/.temp/
+credentials.json
+*-credentials.json
+firebase-adminsdk*.json
+google-services.json
+GoogleService-Info.plist
+*.pem
+*.p12
+*.key
 
 # Editor directories and files
 .vscode/*

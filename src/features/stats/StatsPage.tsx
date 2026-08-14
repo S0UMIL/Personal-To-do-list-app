@@ -63,10 +63,10 @@ export function StatsPage() {
   const goalBars = TASK_AREAS.map((a) => ({
     id: a.value,
     label: a.label,
-    progress: areaProgress(a.value, tasks),
+    progress: areaProgress(a.value, tasks, history),
   })).filter((g) => g.progress > 0 || tasks.some((t) => t.area === g.id))
 
-  const hasData = tasks.some((t) => t.status === 'completed')
+  const hasData = history.some((h) => h.completed) || tasks.some((t) => t.status === 'completed')
 
   if (!hasData) {
     return (

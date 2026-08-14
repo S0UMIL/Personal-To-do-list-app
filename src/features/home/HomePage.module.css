@@ -8,29 +8,92 @@
   padding-top: var(--space-2);
 }
 
-.greeting {
-  font-family: var(--font-serif);
-  font-size: clamp(1.85rem, 5vw, 2.35rem);
-  letter-spacing: -0.03em;
-  line-height: var(--leading-tight);
-  margin-bottom: var(--space-2);
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.headerMain {
+  min-width: 0;
 }
 
 .date {
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+
+.quote {
+  margin: 0;
+  max-width: 36ch;
+}
+
+.quote p {
   color: var(--text-secondary);
-  font-size: var(--text-body);
+  font-size: var(--text-caption);
+  line-height: var(--leading-snug);
+  font-style: italic;
+  margin: 0 0 var(--space-1);
+}
+
+.quote cite {
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-style: normal;
+  letter-spacing: 0.02em;
+}
+
+.alertsLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: var(--space-2) 0;
+  flex-shrink: 0;
+  margin-top: var(--space-2);
+}
+
+.alertsLink:hover {
+  color: var(--text);
+}
+
+.badge {
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, #e07a6a 85%, transparent);
+  color: var(--text-inverse);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  display: inline-grid;
+  place-items: center;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .progressBlock {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-6);
   padding: var(--space-5) 0;
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.progressCopy h2 {
+.fractionBlock {
+  flex-shrink: 0;
+  min-width: 5.5rem;
+}
+
+.fractionLabel {
   font-size: var(--text-caption);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -39,23 +102,87 @@
   margin-bottom: var(--space-2);
 }
 
-.progressCopy p:nth-child(2) {
-  font-size: 1.35rem;
+.fraction {
+  font-size: clamp(2.25rem, 7vw, 2.85rem);
   font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: var(--space-2);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin: 0 0 var(--space-1);
 }
 
-.insight {
-  color: var(--text-secondary);
+.fractionDone {
+  color: var(--accent);
+}
+
+.fractionSep {
+  color: var(--text-muted);
+  font-weight: 400;
+  margin: 0 0.05em;
+}
+
+.fractionSub {
   font-size: var(--text-caption);
-  max-width: 200px;
-  line-height: var(--leading-snug);
+  color: var(--text-muted);
+}
+
+.progressCopy {
+  flex: 1;
+  min-width: 0;
+}
+
+.progressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 1.75rem;
+}
+
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  background: transparent;
+}
+
+.markDone {
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .taskList {
   display: flex;
   flex-direction: column;
+}
+
+.listHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  font-size: clamp(1.35rem, 4.5vw, 1.75rem);
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 .listLabel {
@@ -64,5 +191,19 @@
   text-transform: uppercase;
   color: var(--text-muted);
   font-weight: 500;
-  margin-bottom: var(--space-2);
+  margin: 0;
+}
+
+.editBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+}
+
+.editBtn:hover {
+  color: var(--accent);
 }

@@ -13,6 +13,8 @@ import type {
   TimeOfDay,
   Recurrence,
   TaskArea,
+  DailySelection,
+  GoogleTasksConnection,
 } from '../types'
 import { goalIdToArea } from '../lib/taskAreas'
 import {
@@ -24,6 +26,8 @@ import {
   seedHistory,
   seedFriends,
   seedFriendActivities,
+  seedDailySelection,
+  seedOnboardingComplete,
 } from '../data/seed'
 import { createId } from '../lib/id'
 import { toDateKey } from '../lib/dates'
@@ -56,10 +60,27 @@ interface AppState {
   history: TaskHistoryEntry[]
   friends: Friend[]
   friendActivities: FriendActivity[]
+  onboardingComplete: boolean
+  onboardingWalkthroughDone: boolean
+  dailySelection: DailySelection
+  googleTasks: GoogleTasksConnection
   hydrated: boolean
 
   setUserName: (name: string) => void
   updatePreferences: (prefs: Partial<User['preferences']>) => void
+
+  connectGoogleTasks: (accessToken: string, listId: string) => void
+  disconnectGoogleTasks: () => void
+  setGoogleTasksSyncState: (
+    patch: Partial<Pick<GoogleTasksConnection, 'lastSyncedAt' | 'syncError'>>,
+  ) => void
+  applyGoogleTaskIds: (mapping: Record<string, string>) => void
+
+  completeWalkthrough: () => void
+  completeOnboarding: () => void
+  setDailySelection: (taskIds: string[]) => boolean
+  ensureDayCycle: () => void
+  hasDailySelection: () => boolean
 
   addTask: (input: CreateTaskInput) => Task
   updateTask: (id: string, patch: Partial<Task>) => void
@@ -79,17 +100,34 @@ interface AppState {
   resetDemoData: () => void
 }
 
+const emptySelection = (): DailySelection => ({
+  dateKey: toDateKey(new Date()),
+  taskIds: [],
+})
+
+const emptyGoogleTasks = (): GoogleTasksConnection => ({
+  connected: false,
+  accessToken: null,
+  listId: null,
+  lastSyncedAt: null,
+  syncError: null,
+})
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       user: seedUser,
-      tasks: seedTasks,
+      tasks: [],
       goals: seedGoals,
       milestones: seedMilestones,
       categories: seedCategories,
-      history: seedHistory,
+      history: [],
       friends: seedFriends,
       friendActivities: seedFriendActivities,
+      onboardingComplete: seedOnboardingComplete,
+      onboardingWalkthroughDone: seedOnboardingComplete,
+      dailySelection: emptySelection(),
+      googleTasks: emptyGoogleTasks(),
       hydrated: false,
 
       setUserName: (name) => set((s) => ({ user: { ...s.user, name } })),
@@ -98,6 +136,72 @@ export const useAppStore = create<AppState>()(
         set((s) => ({
           user: { ...s.user, preferences: { ...s.user.preferences, ...prefs } },
         })),
+
+      connectGoogleTasks: (accessToken, listId) =>
+        set({
+          googleTasks: {
+            connected: true,
+            accessToken,
+            listId,
+            lastSyncedAt: null,
+            syncError: null,
+          },
+        }),
+
+      disconnectGoogleTasks: () => set({ googleTasks: emptyGoogleTasks() }),
+
+      setGoogleTasksSyncState: (patch) =>
+        set((s) => ({
+          googleTasks: { ...s.googleTasks, ...patch },
+        })),
+
+      applyGoogleTaskIds: (mapping) =>
+        set((s) => ({
+          tasks: s.tasks.map((t) =>
+            mapping[t.id] ? { ...t, googleTaskId: mapping[t.id] } : t,
+          ),
+        })),
+
+      completeWalkthrough: () => set({ onboardingWalkthroughDone: true }),
+
+      completeOnboarding: () =>
+        set({
+          onboardingComplete: true,
+          onboardingWalkthroughDone: true,
+        }),
+
+      setDailySelection: (taskIds) => {
+        const unique = [...new Set(taskIds)]
+        if (unique.length < 5) return false
+        const today = toDateKey(new Date())
+        set({
+          dailySelection: { dateKey: today, taskIds: unique },
+        })
+        return true
+      },
+
+      ensureDayCycle: () => {
+        const today = toDateKey(new Date())
+        const { dailySelection } = get()
+        if (dailySelection.dateKey !== today) {
+          set({
+            dailySelection: { dateKey: today, taskIds: [] },
+            tasks: get().tasks.map((t) => ({
+              ...t,
+              status: 'todo' as const,
+              completedAt: undefined,
+            })),
+          })
+        }
+      },
+
+      hasDailySelection: () => {
+        const today = toDateKey(new Date())
+        const { dailySelection } = get()
+        return (
+          dailySelection.dateKey === today && dailySelection.taskIds.length >= 5
+        )
+      },
 
       addTask: (input) => {
         const now = new Date().toISOString()
@@ -137,61 +241,37 @@ export const useAppStore = create<AppState>()(
         if (!task) return
 
         const todayKey = toDateKey(new Date())
-        const scheduled = task.scheduleDays && task.scheduleDays.length > 0
-        const completing = scheduled
-          ? !isCompletedOnDate(task, todayKey, get().history)
-          : task.status !== 'completed'
+        const completing = !isCompletedOnDate(task, todayKey, get().history)
 
-        if (scheduled) {
-          if (completing) {
-            const completedAt = new Date().toISOString()
-            set((s) => ({
-              history: [
-                {
-                  id: createId('hist'),
-                  taskId: id,
-                  date: todayKey,
-                  completed: true,
-                  completedAt,
-                },
-                ...s.history.filter(
-                  (h) => !(h.taskId === id && h.date === todayKey),
-                ),
-              ],
-              tasks: s.tasks.map((t) =>
-                t.id === id ? { ...t, status: 'completed', completedAt } : t,
-              ),
-            }))
-          } else {
-            set((s) => ({
-              history: s.history.filter(
-                (h) => h.taskId !== id || h.date !== todayKey,
-              ),
-              tasks: s.tasks.map((t) =>
-                t.id === id ? { ...t, status: 'todo', completedAt: undefined } : t,
-              ),
-            }))
-          }
-        } else {
-          const completedAt = completing ? new Date().toISOString() : undefined
-          const status = completing ? ('completed' as const) : ('todo' as const)
-
+        if (completing) {
+          const completedAt = new Date().toISOString()
           set((s) => ({
+            history: [
+              {
+                id: createId('hist'),
+                taskId: id,
+                date: todayKey,
+                completed: true,
+                completedAt,
+              },
+              ...s.history.filter(
+                (h) => !(h.taskId === id && h.date === todayKey),
+              ),
+            ],
             tasks: s.tasks.map((t) =>
-              t.id === id ? { ...t, status, completedAt } : t,
+              t.id === id ? { ...t, status: 'completed', completedAt } : t,
             ),
-            history: completing
-              ? [
-                  {
-                    id: createId('hist'),
-                    taskId: id,
-                    date: task.dueDate,
-                    completed: true,
-                    completedAt,
-                  },
-                  ...s.history,
-                ]
-              : s.history,
+          }))
+        } else {
+          set((s) => ({
+            history: s.history.filter(
+              (h) => h.taskId !== id || h.date !== todayKey,
+            ),
+            tasks: s.tasks.map((t) =>
+              t.id === id
+                ? { ...t, status: 'todo', completedAt: undefined }
+                : t,
+            ),
           }))
         }
 
@@ -206,7 +286,14 @@ export const useAppStore = create<AppState>()(
       },
 
       deleteTask: (id) =>
-        set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) })),
+        set((s) => ({
+          tasks: s.tasks.filter((t) => t.id !== id),
+          dailySelection: {
+            ...s.dailySelection,
+            taskIds: s.dailySelection.taskIds.filter((tid) => tid !== id),
+          },
+          history: s.history.filter((h) => h.taskId !== id),
+        })),
 
       addGoal: (input) => {
         const goal: Goal = {
@@ -280,10 +367,14 @@ export const useAppStore = create<AppState>()(
           history: seedHistory,
           friends: seedFriends,
           friendActivities: seedFriendActivities,
+          onboardingComplete: true,
+          onboardingWalkthroughDone: true,
+          dailySelection: seedDailySelection,
+          googleTasks: emptyGoogleTasks(),
         }),
     }),
     {
-      name: 'north-app-v1',
+      name: 'north-app-v2',
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.hydrated = true
@@ -307,8 +398,47 @@ export const useAppStore = create<AppState>()(
               task.area = goalIdToArea(task.goalId)
             }
           }
+
+          if (typeof state.onboardingComplete !== 'boolean') {
+            state.onboardingComplete = (state.tasks?.length ?? 0) >= 5
+          }
+          if (typeof state.onboardingWalkthroughDone !== 'boolean') {
+            state.onboardingWalkthroughDone = Boolean(state.onboardingComplete)
+          }
+          if (!state.dailySelection?.dateKey) {
+            state.dailySelection = emptySelection()
+          }
+          if (!state.googleTasks) {
+            state.googleTasks = emptyGoogleTasks()
+          }
+
+          const today = toDateKey(new Date())
+          if (state.dailySelection.dateKey !== today) {
+            state.dailySelection = { dateKey: today, taskIds: [] }
+            state.tasks = state.tasks.map((t) => ({
+              ...t,
+              status: 'todo' as const,
+              completedAt: undefined,
+            }))
+          }
+          state.hydrated = true
         }
+        useAppStore.setState({ hydrated: true })
+      },
+      partialize: (s) => {
+        const { hydrated: _hydrated, ...rest } = s
+        return rest
       },
     },
   ),
 )
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  ;(window as Window & { __northResetOnboarding?: () => void }).__northResetOnboarding =
+    () => {
+      useAppStore.setState({
+        onboardingComplete: false,
+        onboardingWalkthroughDone: false,
+      })
+    }
+}

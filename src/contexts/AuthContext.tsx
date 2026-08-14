@@ -15,6 +15,7 @@ import {
   type CloudUserProfile,
 } from '../services/cloud'
 import { useAppStore } from '../store/useAppStore'
+import { isSupabaseConfigured } from '../lib/supabase'
 
 interface AuthContextValue {
   configured: boolean
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<CloudUserProfile | null>(null)
   const [offlineMode, setOfflineMode] = useState(false)
   const setUserName = useAppStore((s) => s.setUserName)
+  const disconnectGoogleTasks = useAppStore((s) => s.disconnectGoogleTasks)
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -70,10 +72,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isFirebaseConfigured && firebaseUser) {
       await signOutCloud()
     }
+    disconnectGoogleTasks()
     setProfile(null)
     setFirebaseUser(null)
     setOfflineMode(false)
-  }, [firebaseUser])
+  }, [firebaseUser, disconnectGoogleTasks])
 
   const continueOffline = useCallback(() => {
     setOfflineMode(true)
@@ -88,7 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         firebaseUser,
         profile,
         isAuthenticated: Boolean(firebaseUser && profile),
-        isOfflineMode: offlineMode || !isFirebaseConfigured,
+        isOfflineMode:
+          offlineMode || (!isFirebaseConfigured && !isSupabaseConfigured),
         signInGoogle,
         signOut,
         continueOffline,

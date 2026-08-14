@@ -1,10 +1,12 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Home, Target, Users, ChartColumn, CalendarDays, User, Menu, X } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Home, Target, Users, ChartColumn, ListTodo, User, Menu, X } from 'lucide-react'
 import { useState, createContext, useContext, useMemo, useEffect } from 'react'
 import { QuickAdd } from '../tasks/QuickAdd'
 import { ThemeApplier } from './ThemeApplier'
 import { useProgressSync } from '../../hooks/useProgressSync'
+import { useDayCycle } from '../../hooks/useDayCycle'
+import { useGoogleTasksSync } from '../../hooks/useGoogleTasksSync'
 import type { Task, TaskArea } from '../../types'
 import styles from './AppShell.module.css'
 
@@ -25,7 +27,7 @@ const nav = [
   { to: '/friends', label: 'Friends', icon: Users },
   { to: '/goals', label: 'Goals', icon: Target },
   { to: '/stats', label: 'Stats', icon: ChartColumn },
-  { to: '/calendar', label: 'Calendar', icon: CalendarDays },
+  { to: '/tasks', label: 'Tasks', icon: ListTodo },
   { to: '/profile', label: 'Profile', icon: User },
 ]
 
@@ -38,6 +40,8 @@ export function AppShell() {
   const [defaultArea, setDefaultArea] = useState<TaskArea | undefined>()
 
   useProgressSync()
+  useDayCycle()
+  useGoogleTasksSync()
 
   useEffect(() => {
     setNavOpen(false)
@@ -63,8 +67,10 @@ export function AppShell() {
   )
 
   const hideFab =
+    location.pathname === '/' ||
     location.pathname.startsWith('/profile') ||
-    location.pathname.startsWith('/friends')
+    location.pathname.startsWith('/friends') ||
+    location.pathname.startsWith('/recommendations')
 
   return (
     <QuickAddContext.Provider value={ctx}>
@@ -136,18 +142,15 @@ export function AppShell() {
             <span className={`serif ${styles.topTitle}`}>North</span>
           </header>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              className={styles.page}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            key={location.key}
+            className={styles.page}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Outlet />
+          </motion.div>
         </div>
 
         {!hideFab && (
