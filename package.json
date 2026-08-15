@@ -17,10 +17,16 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "cap:sync": "npm run build && npx cap sync android",
+    "cap:open": "npx cap open android",
+    "android:debug": "cd android && .\\gradlew.bat assembleDebug",
     "supabase:types": "supabase gen types typescript --linked > src/types/database.ts",
     "supabase:push": "supabase db push"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
     "@supabase/supabase-js": "^2.112.3",
     "date-fns": "^4.4.0",
     "firebase": "^12.17.1",

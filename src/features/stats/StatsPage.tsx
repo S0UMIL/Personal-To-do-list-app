@@ -26,39 +26,49 @@ export function StatsPage() {
   const tasks = useAppStore((s) => s.tasks)
   const goals = useAppStore((s) => s.goals)
   const history = useAppStore((s) => s.history)
+  const dailyMinimum = useAppStore((s) => s.user.preferences.dailyMinimum ?? 5)
   const weekStartsOn = useAppStore((s) => s.user.preferences.weekStartsOn)
 
   const [period, setPeriod] = useState<StatsPeriod>('week')
 
   const range = periodRange(period, new Date(), weekStartsOn)
-  const streak = calcStreak(tasks, history)
+  const streak = calcStreak(history, dailyMinimum)
   const weekDelta = compareToPreviousWeek(tasks)
 
   const completion = calcPeriodCompletion(tasks, range.start, range.end, history)
 
   const series = useMemo(() => {
-    if (period === 'day') return buildActivitySeries(tasks, lastNDays(7)[0], new Date(), history)
+    if (period === 'day') {
+      return buildActivitySeries(tasks, lastNDays(7)[0], new Date(), history, dailyMinimum)
+    }
     if (period === 'year') {
       const days = getYearDays()
-      return buildActivitySeries(tasks, days[0], days[days.length - 1], history)
+      return buildActivitySeries(tasks, days[0], days[days.length - 1], history, dailyMinimum)
     }
-    return buildActivitySeries(tasks, range.start, range.end, history)
-  }, [tasks, history, period, range.start, range.end])
+    return buildActivitySeries(tasks, range.start, range.end, history, dailyMinimum)
+  }, [tasks, history, period, range.start, range.end, dailyMinimum])
 
   const heatmapData = useMemo(() => {
     const days = lastNDays(119)
-    return buildActivitySeries(tasks, days[0], days[days.length - 1], history)
-  }, [tasks, history])
+    return buildActivitySeries(tasks, days[0], days[days.length - 1], history, dailyMinimum)
+  }, [tasks, history, dailyMinimum])
 
   const yearHeat = useMemo(() => {
     const days = getYearDays()
-    return buildActivitySeries(tasks, days[0], days[days.length - 1], history)
-  }, [tasks, history])
+    return buildActivitySeries(tasks, days[0], days[days.length - 1], history, dailyMinimum)
+  }, [tasks, history, dailyMinimum])
 
   const weekRange = periodRange('week', new Date(), weekStartsOn)
   const monthRange = periodRange('month', new Date(), weekStartsOn)
-  const weekly = calcWeeklySummary(tasks, weekRange.start, weekRange.end)
-  const monthly = calcMonthlyOverview(tasks, goals, monthRange.start, monthRange.end)
+  const weekly = calcWeeklySummary(tasks, weekRange.start, weekRange.end, history, dailyMinimum)
+  const monthly = calcMonthlyOverview(
+    tasks,
+    goals,
+    monthRange.start,
+    monthRange.end,
+    history,
+    dailyMinimum,
+  )
 
   const goalBars = TASK_AREAS.map((a) => ({
     id: a.value,
@@ -116,7 +126,7 @@ export function StatsPage() {
         <div className={styles.streakBox}>
           <p className={styles.statLabel}>Consistency</p>
           <p className={`${styles.streakValue} tabular`}>{streak}</p>
-          <p className={styles.statSub}>day streak</p>
+          <p className={styles.statSub}>day streak · min {dailyMinimum}/day</p>
           {weekDelta !== 0 && (
             <p className={styles.delta}>
               {weekDelta > 0 ? '+' : ''}
@@ -137,7 +147,7 @@ export function StatsPage() {
 
       <section className={styles.panel}>
         <h2>Activity</h2>
-        <Heatmap data={period === 'year' ? yearHeat : heatmapData} />
+        <Heatmap data={period === 'year' ? yearHeat : heatmapData} dailyMinimum={dailyMinimum} />
         <div className={styles.heatLegend}>
           <span>Less</span>
           <i data-level="0" />
@@ -216,7 +226,7 @@ export function StatsPage() {
           <p className={styles.yearHint}>
             Each cell is a day in {new Date().getFullYear()}. Spot streaks, dips, and peaks at a glance.
           </p>
-          <Heatmap data={yearHeat} />
+          <Heatmap data={yearHeat} dailyMinimum={dailyMinimum} />
         </section>
       )}
     </div>

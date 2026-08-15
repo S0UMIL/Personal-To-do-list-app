@@ -42,3 +42,13 @@ GoogleService-Info.plist
 *.njsproj
 *.sln
 *.sw?
+
+# Capacitor / Android (local build artifacts; platform source is committed)
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/captures/
+*.apk
+*.aab
