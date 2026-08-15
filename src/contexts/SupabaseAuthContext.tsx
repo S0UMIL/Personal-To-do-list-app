@@ -13,6 +13,7 @@ import type { Session, User } from '@supabase/supabase-js'
 import { getSupabaseOrNull, isSupabaseConfigured } from '../lib/supabase'
 import { fetchMyProfile } from '../services/supabase/profiles'
 import {
+  describeOAuthCallbackUrl,
   getAuthRedirectUrl,
   isNativeAuthCallback,
   isNativePlatform,
@@ -116,23 +117,12 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       handlingCallbackRef.current = true
 
       const params = parseNativeOAuthCallback(url)
+      const callbackDiag = describeOAuthCallbackUrl(url)
 
-      if (import.meta.env.DEV) {
-        console.info('[OAuth] native callback', {
-          urlHost: (() => {
-            try {
-              return new URL(url).host
-            } catch {
-              return 'invalid'
-            }
-          })(),
-          hasCode: Boolean(params.code),
-          hasFlowId: Boolean(params.flowId ?? pendingPkceFlowIdRef.current),
-          hasError: Boolean(params.error),
-          error: params.error,
-          errorDescription: params.errorDescription,
-        })
-      }
+      console.info('[OAuth] native callback structure', {
+        ...callbackDiag,
+        hasFlowId: Boolean(params.flowId ?? pendingPkceFlowIdRef.current),
+      })
 
       try {
         try {
@@ -149,7 +139,15 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (!params.code) {
-          setNativeOAuthError('Google sign-in did not return an authorization code.')
+          const implicitTokens =
+            callbackDiag.hasAccessTokenInHash || callbackDiag.hasRefreshTokenInHash
+          setNativeOAuthError(
+            implicitTokens
+              ? 'Google sign-in returned session tokens in the URL hash instead of a PKCE code. Rebuild the app after enabling PKCE auth flow.'
+              : callbackDiag.hasError || callbackDiag.hasErrorDescription
+                ? 'Google sign-in failed before returning an authorization code.'
+                : 'Google sign-in did not return an authorization code.',
+          )
           setOauthInProgress(false)
           pendingPkceFlowIdRef.current = null
           return

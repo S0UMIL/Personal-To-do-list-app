@@ -36,6 +36,64 @@ export interface NativeOAuthCallbackParams {
   errorDescription: string | null
 }
 
+/** Safe OAuth callback metadata for device logging (no secret values). */
+export interface OAuthCallbackDiagnostics {
+  scheme: string | null
+  host: string | null
+  pathname: string | null
+  hasSearch: boolean
+  hasHash: boolean
+  queryParamNames: string[]
+  hashParamNames: string[]
+  hasCode: boolean
+  hasError: boolean
+  hasErrorDescription: boolean
+  hasAccessTokenInHash: boolean
+  hasRefreshTokenInHash: boolean
+}
+
+export function describeOAuthCallbackUrl(url: string): OAuthCallbackDiagnostics {
+  const empty: OAuthCallbackDiagnostics = {
+    scheme: null,
+    host: null,
+    pathname: null,
+    hasSearch: false,
+    hasHash: false,
+    queryParamNames: [],
+    hashParamNames: [],
+    hasCode: false,
+    hasError: false,
+    hasErrorDescription: false,
+    hasAccessTokenInHash: false,
+    hasRefreshTokenInHash: false,
+  }
+  try {
+    const parsed = new URL(url)
+    const hash = parsed.hash?.startsWith('#') ? parsed.hash.slice(1) : parsed.hash
+    const hashParams = hash ? new URLSearchParams(hash) : null
+    const queryNames = [...parsed.searchParams.keys()]
+    const hashNames = hashParams ? [...hashParams.keys()] : []
+    return {
+      scheme: parsed.protocol.replace(/:$/, ''),
+      host: parsed.host || null,
+      pathname: parsed.pathname || null,
+      hasSearch: parsed.search.length > 1,
+      hasHash: Boolean(hash),
+      queryParamNames: queryNames,
+      hashParamNames: hashNames,
+      hasCode: parsed.searchParams.has('code') || hashParams?.has('code') === true,
+      hasError: parsed.searchParams.has('error') || hashParams?.has('error') === true,
+      hasErrorDescription:
+        parsed.searchParams.has('error_description') ||
+        hashParams?.has('error_description') === true,
+      hasAccessTokenInHash: hashParams?.has('access_token') === true,
+      hasRefreshTokenInHash: hashParams?.has('refresh_token') === true,
+    }
+  } catch {
+    return empty
+  }
+}
+
 /** Parse OAuth callback query params from a native deep-link URL. */
 export function parseNativeOAuthCallback(url: string): NativeOAuthCallbackParams {
   try {

@@ -16,6 +16,9 @@ if (isSupabaseConfigured) {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
+      // Required for native deep links: implicit flow puts tokens in the URL hash
+      // (#access_token=...), which Android intents often drop. PKCE uses ?code=...
+      flowType: 'pkce',
     },
   })
 }
