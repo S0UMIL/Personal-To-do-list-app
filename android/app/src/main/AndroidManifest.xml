@@ -33,6 +33,162 @@
 
         </activity>
 
+        <receiver
+            android:name=".widget.TodayWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_today_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_today_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.StreakWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_streak_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_streak_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AlertsWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_alerts_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_alerts_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.NextFocusWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_next_focus_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_next_focus_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.DayWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_day_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_day_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.LibraryWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_library_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_library_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AreasTodayWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_areas_today_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_areas_today_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.DailyQuoteWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_daily_quote_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_daily_quote_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.RemainingWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_remaining_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_remaining_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.ProgressWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_progress_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_progress_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.HighPriorityWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_high_priority_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_high_priority_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.GoogleTasksWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_google_tasks_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_google_tasks_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.DoneWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_done_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_done_info" />
+        </receiver>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

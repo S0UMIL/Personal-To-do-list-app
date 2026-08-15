@@ -4,4 +4,31 @@
     <string name="title_activity_main">North</string>
     <string name="package_name">com.north.productivity</string>
     <string name="custom_url_scheme">com.north.productivity</string>
+
+    <string name="widget_today_label">Today</string>
+    <string name="widget_today_desc">Today\'s tasks and progress</string>
+    <string name="widget_streak_label">Streak</string>
+    <string name="widget_streak_desc">Days active</string>
+    <string name="widget_alerts_label">Alerts</string>
+    <string name="widget_alerts_desc">Priority flags</string>
+    <string name="widget_next_focus_label">Next focus</string>
+    <string name="widget_next_focus_desc">Highest priority open task</string>
+    <string name="widget_day_label">Day</string>
+    <string name="widget_day_desc">Tasks locked in today</string>
+    <string name="widget_library_label">Library</string>
+    <string name="widget_library_desc">Standing tasks</string>
+    <string name="widget_areas_today_label">Areas today</string>
+    <string name="widget_areas_today_desc">Progress by area</string>
+    <string name="widget_daily_quote_label">Daily quote</string>
+    <string name="widget_daily_quote_desc">Daily motivation</string>
+    <string name="widget_remaining_label">Remaining</string>
+    <string name="widget_remaining_desc">Tasks left today</string>
+    <string name="widget_progress_label">Progress</string>
+    <string name="widget_progress_desc">Today\'s completion</string>
+    <string name="widget_high_priority_label">High priority</string>
+    <string name="widget_high_priority_desc">Open high-priority tasks</string>
+    <string name="widget_google_tasks_label">Google Tasks</string>
+    <string name="widget_google_tasks_desc">Sync status</string>
+    <string name="widget_done_label">Done</string>
+    <string name="widget_done_desc">Checked off today</string>
 </resources>

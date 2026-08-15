@@ -5,6 +5,8 @@ import { useState, createContext, useContext, useMemo, useEffect } from 'react'
 import { QuickAdd } from '../tasks/QuickAdd'
 import { ThemeApplier } from './ThemeApplier'
 import { useProgressSync } from '../../hooks/useProgressSync'
+import { useWidgetBridgeSync } from '../../hooks/useWidgetBridgeSync'
+import { useWidgetRouteNavigation } from '../../hooks/useWidgetRouteNavigation'
 import { useDayCycle } from '../../hooks/useDayCycle'
 import { useGoogleTasksSync } from '../../hooks/useGoogleTasksSync'
 import type { Task, TaskArea } from '../../types'
@@ -40,6 +42,8 @@ export function AppShell() {
   const [defaultArea, setDefaultArea] = useState<TaskArea | undefined>()
 
   useProgressSync()
+  useWidgetBridgeSync()
+  useWidgetRouteNavigation()
   useDayCycle()
   useGoogleTasksSync()
 
