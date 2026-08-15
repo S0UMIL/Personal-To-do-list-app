@@ -3,13 +3,21 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
+import { App } from '@capacitor/app'
+import { Browser } from '@capacitor/browser'
 import type { Session, User } from '@supabase/supabase-js'
 import { getSupabaseOrNull, isSupabaseConfigured } from '../lib/supabase'
 import { fetchMyProfile } from '../services/supabase/profiles'
-import { getAuthRedirectUrl, isNativeAuthCallback, isNativePlatform } from '../lib/authRedirect'
+import {
+  getAuthRedirectUrl,
+  isNativeAuthCallback,
+  isNativePlatform,
+  parseNativeOAuthCallback,
+} from '../lib/authRedirect'
 import { useAppStore } from '../store/useAppStore'
 import type { Profile } from '../types/database'
 
@@ -20,6 +28,9 @@ interface SupabaseAuthContextValue {
   user: User | null
   profile: Profile | null
   isAuthenticated: boolean
+  oauthInProgress: boolean
+  nativeOAuthError: string | null
+  clearNativeOAuthError: () => void
   signInWithGoogle: (mode?: 'login' | 'signup') => Promise<void>
   signInWithEmail: (email: string, password: string) => Promise<void>
   signUpWithEmail: (email: string, password: string) => Promise<{ needsEmailConfirm: boolean }>
@@ -33,9 +44,17 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(isSupabaseConfigured)
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [oauthInProgress, setOauthInProgress] = useState(false)
+  const [nativeOAuthError, setNativeOAuthError] = useState<string | null>(null)
+  const pendingPkceFlowIdRef = useRef<string | null>(null)
+  const handlingCallbackRef = useRef(false)
   const setUserName = useAppStore((s) => s.setUserName)
 
   const supabase = getSupabaseOrNull()
+
+  const clearNativeOAuthError = useCallback(() => {
+    setNativeOAuthError(null)
+  }, [])
 
   const loadProfile = useCallback(
     async (userId: string) => {
@@ -75,6 +94,8 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession)
       if (nextSession?.user) {
+        setOauthInProgress(false)
+        setNativeOAuthError(null)
         loadProfile(nextSession.user.id).finally(() => setLoading(false))
       } else {
         setProfile(null)
@@ -88,48 +109,110 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     }
   }, [supabase, loadProfile])
 
-  // Native OAuth: Google opens in system browser, returns via deep link.
-  useEffect(() => {
-    if (!supabase || !isNativePlatform()) return
+  const handleNativeOAuthCallback = useCallback(
+    async (url: string) => {
+      if (!supabase || !isNativeAuthCallback(url)) return
+      if (handlingCallbackRef.current) return
+      handlingCallbackRef.current = true
 
-    let removed = false
-    let removeListener: (() => void) | undefined
+      const params = parseNativeOAuthCallback(url)
 
-    void (async () => {
-      const { App } = await import('@capacitor/app')
-      const { Browser } = await import('@capacitor/browser')
-      const handle = await App.addListener('appUrlOpen', async ({ url }) => {
-        if (!isNativeAuthCallback(url)) return
+      if (import.meta.env.DEV) {
+        console.info('[OAuth] native callback', {
+          urlHost: (() => {
+            try {
+              return new URL(url).host
+            } catch {
+              return 'invalid'
+            }
+          })(),
+          hasCode: Boolean(params.code),
+          hasFlowId: Boolean(params.flowId ?? pendingPkceFlowIdRef.current),
+          hasError: Boolean(params.error),
+          error: params.error,
+          errorDescription: params.errorDescription,
+        })
+      }
+
+      try {
         try {
           await Browser.close()
         } catch {
           /* browser may already be closed */
         }
-        const { error } = await supabase.auth.exchangeCodeForSession(url)
+
+        if (params.error || params.errorDescription) {
+          setNativeOAuthError(params.errorDescription ?? params.error ?? 'Google sign-in failed')
+          setOauthInProgress(false)
+          pendingPkceFlowIdRef.current = null
+          return
+        }
+
+        if (!params.code) {
+          setNativeOAuthError('Google sign-in did not return an authorization code.')
+          setOauthInProgress(false)
+          pendingPkceFlowIdRef.current = null
+          return
+        }
+
+        const flowId = params.flowId ?? pendingPkceFlowIdRef.current ?? undefined
+        const { error } = await supabase.auth.exchangeCodeForSession(
+          params.code,
+          flowId ? { flowId } : undefined,
+        )
+        pendingPkceFlowIdRef.current = null
+
         if (error) {
-          console.error('OAuth callback failed:', error.message)
+          console.error('[OAuth] code exchange failed:', error.message)
+          setNativeOAuthError(error.message)
+          setOauthInProgress(false)
         }
+      } finally {
+        handlingCallbackRef.current = false
+      }
+    },
+    [supabase],
+  )
+
+  // Native OAuth: Google opens in system browser, returns via deep link.
+  useEffect(() => {
+    if (!supabase || !isNativePlatform()) return
+
+    let cancelled = false
+    let removeListener: (() => void) | undefined
+
+    void (async () => {
+      const handle = await App.addListener('appUrlOpen', ({ url }) => {
+        void handleNativeOAuthCallback(url)
       })
-      if (removed) {
+
+      if (cancelled) {
         await handle.remove()
-      } else {
-        removeListener = () => {
-          void handle.remove()
-        }
+        return
+      }
+
+      removeListener = () => {
+        void handle.remove()
+      }
+
+      const launch = await App.getLaunchUrl()
+      if (!cancelled && launch?.url) {
+        void handleNativeOAuthCallback(launch.url)
       }
     })()
 
     return () => {
-      removed = true
+      cancelled = true
       removeListener?.()
     }
-  }, [supabase])
+  }, [supabase, handleNativeOAuthCallback])
 
   const signInWithGoogle = useCallback(
     async (_mode: 'login' | 'signup' = 'login') => {
       if (!supabase) {
         throw new Error('Supabase is not configured')
       }
+      setNativeOAuthError(null)
       const redirectTo = getAuthRedirectUrl()
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -145,7 +228,8 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       if (!data.url) throw new Error('Google sign-in did not return a redirect URL')
 
       if (isNativePlatform()) {
-        const { Browser } = await import('@capacitor/browser')
+        pendingPkceFlowIdRef.current = data.flowId ?? null
+        setOauthInProgress(true)
         await Browser.open({ url: data.url })
         return
       }
@@ -203,6 +287,8 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
     setProfile(null)
+    setOauthInProgress(false)
+    pendingPkceFlowIdRef.current = null
   }, [supabase])
 
   const refreshProfile = useCallback(async () => {
@@ -219,6 +305,9 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         user: session?.user ?? null,
         profile,
         isAuthenticated: Boolean(session?.user),
+        oauthInProgress,
+        nativeOAuthError,
+        clearNativeOAuthError,
         signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,

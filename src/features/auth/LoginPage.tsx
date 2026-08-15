@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext'
 import { useCloudIdentity } from '../../hooks/useCloudIdentity'
 import { authCallbackError, hasAuthCallback } from '../../lib/authCallback'
+import { isNativePlatform } from '../../lib/authRedirect'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { useAppStore } from '../../store/useAppStore'
@@ -29,28 +30,40 @@ export function LoginPage() {
   const [info, setInfo] = useState<string | null>(null)
 
   const callbackErr = authCallbackError(location.search, location.hash)
-  const waitingOnCallback =
+  const waitingOnWebCallback =
+    !isNativePlatform() &&
     hasAuthCallback(location.search, location.hash) &&
     !isAuthenticated &&
     !error &&
     !callbackErr
+  const waitingOnNativeOAuth = isNativePlatform() && supabase.oauthInProgress && !isAuthenticated
+  const nativeOAuthErr = supabase.nativeOAuthError
 
   useEffect(() => {
-    if (!waitingOnCallback) return
+    if (!waitingOnWebCallback) return
     const t = window.setTimeout(() => {
       setError(
         'Google sign-in did not finish. In Supabase, add http://localhost:5173/login to Redirect URLs, and confirm the Google provider is enabled.',
       )
     }, 12000)
     return () => window.clearTimeout(t)
-  }, [waitingOnCallback])
+  }, [waitingOnWebCallback])
 
-  if (waitingOnCallback || identityLoading) {
+  useEffect(() => {
+    if (!nativeOAuthErr) return
+    setError(nativeOAuthErr)
+    setBusy(false)
+    supabase.clearNativeOAuthError()
+  }, [nativeOAuthErr, supabase])
+
+  if (waitingOnWebCallback || waitingOnNativeOAuth || identityLoading) {
     return (
       <div className={styles.page}>
         <div className={styles.card}>
           <p className={styles.hint}>
-            {waitingOnCallback ? 'Finishing Google sign-in…' : 'Loading…'}
+            {waitingOnWebCallback || waitingOnNativeOAuth
+              ? 'Finishing Google sign-in…'
+              : 'Loading…'}
           </p>
           {error && <p className={styles.error}>{error}</p>}
         </div>
@@ -86,6 +99,7 @@ export function LoginPage() {
       await firebase.signInGoogle()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed')
+    } finally {
       setBusy(false)
     }
   }
