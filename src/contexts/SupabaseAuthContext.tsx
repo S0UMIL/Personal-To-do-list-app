@@ -9,6 +9,7 @@ import {
 import type { Session, User } from '@supabase/supabase-js'
 import { getSupabaseOrNull, isSupabaseConfigured } from '../lib/supabase'
 import { fetchMyProfile } from '../services/supabase/profiles'
+import { getAuthRedirectUrl, isNativeAuthCallback, isNativePlatform } from '../lib/authRedirect'
 import { useAppStore } from '../store/useAppStore'
 import type { Profile } from '../types/database'
 
@@ -27,8 +28,6 @@ interface SupabaseAuthContextValue {
 }
 
 const SupabaseAuthContext = createContext<SupabaseAuthContextValue | null>(null)
-
-const redirectTo = () => `${window.location.origin}/login`
 
 export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(isSupabaseConfigured)
@@ -89,15 +88,53 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     }
   }, [supabase, loadProfile])
 
+  // Native OAuth: Google opens in system browser, returns via deep link.
+  useEffect(() => {
+    if (!supabase || !isNativePlatform()) return
+
+    let removed = false
+    let removeListener: (() => void) | undefined
+
+    void (async () => {
+      const { App } = await import('@capacitor/app')
+      const { Browser } = await import('@capacitor/browser')
+      const handle = await App.addListener('appUrlOpen', async ({ url }) => {
+        if (!isNativeAuthCallback(url)) return
+        try {
+          await Browser.close()
+        } catch {
+          /* browser may already be closed */
+        }
+        const { error } = await supabase.auth.exchangeCodeForSession(url)
+        if (error) {
+          console.error('OAuth callback failed:', error.message)
+        }
+      })
+      if (removed) {
+        await handle.remove()
+      } else {
+        removeListener = () => {
+          void handle.remove()
+        }
+      }
+    })()
+
+    return () => {
+      removed = true
+      removeListener?.()
+    }
+  }, [supabase])
+
   const signInWithGoogle = useCallback(
     async (_mode: 'login' | 'signup' = 'login') => {
       if (!supabase) {
         throw new Error('Supabase is not configured')
       }
+      const redirectTo = getAuthRedirectUrl()
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectTo(),
+          redirectTo,
           skipBrowserRedirect: true,
           queryParams: {
             prompt: 'select_account',
@@ -106,7 +143,14 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       })
       if (error) throw error
       if (!data.url) throw new Error('Google sign-in did not return a redirect URL')
-      // Probe before navigating so a disabled provider stays on /login instead of a JSON page.
+
+      if (isNativePlatform()) {
+        const { Browser } = await import('@capacitor/browser')
+        await Browser.open({ url: data.url })
+        return
+      }
+
+      // Web: probe before navigating so a disabled provider stays on /login instead of a JSON page.
       const probe = await fetch(data.url, { method: 'GET', redirect: 'manual', credentials: 'omit' })
       const probeBlocked =
         probe.status === 400 || (probe.type !== 'opaqueredirect' && probe.status >= 400)
@@ -146,7 +190,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: redirectTo() },
+        options: { emailRedirectTo: getAuthRedirectUrl() },
       })
       if (error) throw error
       return { needsEmailConfirm: !data.session }
