@@ -21,7 +21,7 @@ export const seedUser: User = {
   name: 'Ishan',
   preferences: {
     theme: 'dark',
-    colorTheme: 'midnight',
+    colorTheme: 'mono',
     weekStartsOn: 1,
     notifications: true,
     morningReminderTime: '08:00',

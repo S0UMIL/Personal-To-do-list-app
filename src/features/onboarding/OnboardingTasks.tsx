@@ -66,7 +66,7 @@ export function OnboardingTasks() {
           Back
         </button>
         <p className={styles.eyebrow}>Getting started</p>
-        <h1 className={`serif ${styles.title}`}>Let's build your starting list</h1>
+        <h1 className={`displayTitle ${styles.title}`}>Let's build your starting list</h1>
         <p className={styles.lead}>
           Add at least 5 things you genuinely want to get done. You can always add more later.
         </p>

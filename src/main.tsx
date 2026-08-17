@@ -1,6 +1,6 @@
 import { applyColorTheme } from './lib/themes'
 
-applyColorTheme('midnight')
+applyColorTheme('mono')
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'

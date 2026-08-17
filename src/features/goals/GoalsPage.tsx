@@ -48,7 +48,7 @@ export function GoalsPage() {
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Direction</p>
-          <h1 className={`serif ${styles.title}`}>Goals</h1>
+          <h1 className={`displayTitle ${styles.title}`}>Goals</h1>
         </div>
         <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
           New goal

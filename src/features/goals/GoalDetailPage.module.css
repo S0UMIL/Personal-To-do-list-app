@@ -30,7 +30,8 @@
 
 .title {
   font-size: clamp(2rem, 5vw, 2.6rem);
-  letter-spacing: -0.03em;
+  font-weight: var(--font-weight-display);
+  letter-spacing: var(--letter-title);
   line-height: var(--leading-tight);
   margin-bottom: var(--space-3);
 }

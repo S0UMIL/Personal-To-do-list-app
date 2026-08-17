@@ -23,7 +23,7 @@ export function RecommendationsPage() {
 
       <header className={styles.header}>
         <p className={styles.eyebrow}>Attention</p>
-        <h1 className={`serif ${styles.title}`}>Recommendations</h1>
+        <h1 className={`displayTitle ${styles.title}`}>Recommendations</h1>
         <p className={styles.lead}>
           Tasks that have gone quiet relative to their priority.
         </p>

@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Home, Target, Users, ChartColumn, ListTodo, User, Menu, X } from 'lucide-react'
 import { useState, createContext, useContext, useMemo, useEffect } from 'react'
+import { Logo } from '../ui/Logo'
 import { QuickAdd } from '../tasks/QuickAdd'
 import { ThemeApplier } from './ThemeApplier'
 import { useProgressSync } from '../../hooks/useProgressSync'
@@ -29,7 +30,7 @@ export function useQuickAdd() {
 
 const nav = [
   { to: '/', label: 'Home', icon: Home, end: true },
-  { to: '/friends', label: 'Friends', icon: Users },
+  { to: '/friends', label: 'Leaderboard', icon: Users },
   { to: '/goals', label: 'Goals', icon: Target },
   { to: '/stats', label: 'Stats', icon: ChartColumn },
   { to: '/tasks', label: 'Tasks', icon: ListTodo },
@@ -99,8 +100,8 @@ export function AppShell() {
         <aside className={`${styles.sidebar} ${navOpen ? styles.sidebarOpen : ''}`}>
           <div className={styles.sidebarHead}>
             <div className={styles.brand}>
-              <span className={styles.brandMark} aria-hidden />
-              <span className={`serif ${styles.brandName}`}>North</span>
+              <Logo size={24} />
+              <span className={`displayTitle ${styles.brandName}`}>North</span>
             </div>
             <button
               type="button"
@@ -150,7 +151,8 @@ export function AppShell() {
             >
               <Menu size={22} strokeWidth={1.75} />
             </button>
-            <span className={`serif ${styles.topTitle}`}>North</span>
+            <Logo size={22} />
+            <span className={`displayTitle ${styles.topTitle}`}>North</span>
           </header>
 
           <motion.div

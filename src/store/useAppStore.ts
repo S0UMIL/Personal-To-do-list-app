@@ -384,7 +384,7 @@ export const useAppStore = create<AppState>()(
         if (state) {
           state.hydrated = true
           if (!state.user.preferences.colorTheme) {
-            state.user.preferences.colorTheme = 'midnight'
+            state.user.preferences.colorTheme = 'mono'
           } else {
             state.user.preferences.colorTheme = normalizeColorTheme(
               state.user.preferences.colorTheme,

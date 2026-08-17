@@ -5,8 +5,9 @@
 }
 
 .eyebrow {
-  font-size: var(--text-caption);
-  letter-spacing: 0.1em;
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-label);
+  letter-spacing: var(--letter-label);
   text-transform: uppercase;
   color: var(--text-muted);
   margin-bottom: var(--space-2);
@@ -14,8 +15,51 @@
 
 .title {
   font-size: clamp(2rem, 5vw, 2.5rem);
-  font-weight: 400;
-  letter-spacing: -0.03em;
+  font-weight: var(--font-weight-display);
+  letter-spacing: var(--letter-title);
+}
+
+.streakHero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(135deg, var(--accent-soft), transparent 55%),
+    var(--surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.streakLabel {
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.streakNumber {
+  font-size: clamp(2.5rem, 8vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--accent);
+  margin: 0 0 var(--space-2);
+}
+
+.streakUnit {
+  margin-left: 0.35rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.streakSub {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
 }
 
 .heroStat {

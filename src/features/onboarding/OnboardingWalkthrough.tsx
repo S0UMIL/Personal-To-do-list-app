@@ -73,7 +73,7 @@ export function OnboardingWalkthrough() {
             <div className={styles.iconWrap}>
               <Icon size={32} strokeWidth={1.6} />
             </div>
-            <h1 className={`serif ${styles.title}`}>{screen.title}</h1>
+            <h1 className={`displayTitle ${styles.title}`}>{screen.title}</h1>
             <p className={styles.lead}>{screen.body}</p>
           </motion.div>
         </AnimatePresence>

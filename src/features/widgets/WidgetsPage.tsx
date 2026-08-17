@@ -32,7 +32,7 @@ export function WidgetsPage() {
       </Link>
       <header>
         <p className={styles.eyebrow}>Home screen</p>
-        <h1 className={`serif ${styles.title}`}>Widgets</h1>
+        <h1 className={`displayTitle ${styles.title}`}>Widgets</h1>
         <p className={styles.lead}>
           Glanceable surfaces that mirror North&apos;s visual language. On native
           builds these map to iOS/Android widget targets.

@@ -18,17 +18,14 @@
   text-align: center;
 }
 
-.mark {
-  display: block;
-  width: 48px;
-  height: 2px;
-  margin: 0 auto var(--space-6);
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+.logo {
+  margin: 0 auto var(--space-5);
 }
 
 .title {
   font-size: 2.25rem;
-  letter-spacing: -0.03em;
+  font-weight: var(--font-weight-display);
+  letter-spacing: var(--letter-title);
   margin-bottom: var(--space-3);
 }
 
@@ -84,7 +81,7 @@
 .error {
   margin-top: var(--space-4);
   font-size: var(--text-caption);
-  color: #e07a6a;
+  color: var(--error);
   line-height: var(--leading-snug);
 }
 

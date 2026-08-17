@@ -83,8 +83,20 @@ export function StatsPage() {
       <div className={styles.page}>
         <header>
           <p className={styles.eyebrow}>Analytics</p>
-          <h1 className={`serif ${styles.title}`}>Statistics</h1>
+          <h1 className={`displayTitle ${styles.title}`}>Statistics</h1>
         </header>
+        <section className={styles.streakHero} aria-label="Current streak">
+          <div>
+            <p className={styles.streakLabel}>Current streak</p>
+            <p className={`${styles.streakNumber} tabular`}>
+              {streak}
+              <span className={styles.streakUnit}>days</span>
+            </p>
+            <p className={styles.streakSub}>
+              Minimum {dailyMinimum} tasks per day to keep your streak
+            </p>
+          </div>
+        </section>
         <EmptyState
           title="Your story starts today."
           description="Complete a few tasks and your progress will appear here."
@@ -97,8 +109,27 @@ export function StatsPage() {
     <div className={styles.page}>
       <header>
         <p className={styles.eyebrow}>Analytics</p>
-        <h1 className={`serif ${styles.title}`}>Statistics</h1>
+        <h1 className={`displayTitle ${styles.title}`}>Statistics</h1>
       </header>
+
+      <section className={styles.streakHero} aria-label="Current streak">
+        <div>
+          <p className={styles.streakLabel}>Current streak</p>
+          <p className={`${styles.streakNumber} tabular`}>
+            {streak}
+            <span className={styles.streakUnit}>days</span>
+          </p>
+          <p className={styles.streakSub}>
+            Minimum {dailyMinimum} tasks per day to keep your streak
+          </p>
+        </div>
+        {weekDelta !== 0 && (
+          <p className={styles.delta}>
+            {weekDelta > 0 ? '+' : ''}
+            {weekDelta}% vs last week
+          </p>
+        )}
+      </section>
 
       <Segmented
         ariaLabel="Stats period"

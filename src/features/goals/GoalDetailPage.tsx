@@ -83,7 +83,7 @@ export function GoalDetailPage() {
 
       <header className={styles.header}>
         <p className={styles.type}>{areaLabel ?? 'Goal'}</p>
-        <h1 className={`serif ${styles.title}`}>{goal.title}</h1>
+        <h1 className={`displayTitle ${styles.title}`}>{goal.title}</h1>
         {goal.description && <p className={styles.desc}>{goal.description}</p>}
       </header>
 

@@ -5,8 +5,9 @@
 }
 
 .eyebrow {
-  font-size: var(--text-caption);
-  letter-spacing: 0.1em;
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-label);
+  letter-spacing: var(--letter-label);
   text-transform: uppercase;
   color: var(--text-muted);
   margin-bottom: var(--space-2);
@@ -14,8 +15,8 @@
 
 .title {
   font-size: clamp(2rem, 5vw, 2.5rem);
-  font-weight: 400;
-  letter-spacing: -0.03em;
+  font-weight: var(--font-weight-display);
+  letter-spacing: var(--letter-title);
   margin-bottom: var(--space-2);
 }
 
@@ -28,7 +29,7 @@
   background: var(--surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  margin-bottom: var(--space-6);
+  margin-top: var(--space-6);
 }
 
 .addLabel {
@@ -168,6 +169,7 @@
   height: 100%;
   border-radius: var(--radius-full);
   transition: width 0.5s var(--ease-out);
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent));
 }
 
 .rate {
@@ -177,11 +179,11 @@
 }
 
 .first {
-  border: 1px solid rgba(212, 175, 95, 0.35);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   background: linear-gradient(
     135deg,
-    rgba(212, 175, 95, 0.1) 0%,
-    rgba(212, 175, 95, 0.02) 60%
+    var(--accent-soft) 0%,
+    transparent 60%
   );
   margin: 0 calc(var(--space-3) * -1);
   padding: var(--space-4) var(--space-3);
@@ -191,29 +193,29 @@
 .you.first {
   background: linear-gradient(
     135deg,
-    rgba(212, 175, 95, 0.14) 0%,
+    color-mix(in srgb, var(--accent) 18%, transparent) 0%,
     var(--accent-soft) 60%
   );
 }
 
 .crown {
-  color: #d4af5f;
+  color: var(--accent);
   font-size: 0.9rem;
   line-height: 1;
 }
 
 .avatarFirst {
-  box-shadow: 0 0 0 2px rgba(212, 175, 95, 0.45);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 .firstBadge {
   font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #d4af5f;
+  color: var(--accent);
   font-weight: 600;
   padding: 2px 6px;
   border-radius: var(--radius-full);
-  background: rgba(212, 175, 95, 0.12);
-  border: 1px solid rgba(212, 175, 95, 0.25);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
 }

@@ -62,8 +62,8 @@
 
 .title {
   font-size: var(--text-body);
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-weight: var(--font-weight-title);
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 

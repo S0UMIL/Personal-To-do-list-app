@@ -26,7 +26,7 @@ export function TasksPage() {
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Library</p>
-          <h1 className={`serif ${styles.title}`}>Tasks</h1>
+          <h1 className={`displayTitle ${styles.title}`}>Tasks</h1>
           <p className={styles.lead}>
             Standing tasks you draw from each day. Add or remove as you like.
           </p>

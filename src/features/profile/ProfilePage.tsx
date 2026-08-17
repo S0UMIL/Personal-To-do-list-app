@@ -28,7 +28,7 @@ export function ProfilePage() {
   const [connectingTasks, setConnectingTasks] = useState(false)
   const [connectError, setConnectError] = useState<string | null>(null)
 
-  const colorTheme = user.preferences.colorTheme ?? 'midnight'
+  const colorTheme = user.preferences.colorTheme ?? 'mono'
 
   const copyId = () => {
     if (identity.friendCode) {
@@ -68,7 +68,7 @@ export function ProfilePage() {
     <div className={styles.page}>
       <header>
         <p className={styles.eyebrow}>Account</p>
-        <h1 className={`serif ${styles.title}`}>Profile</h1>
+        <h1 className={`displayTitle ${styles.title}`}>Profile</h1>
       </header>
 
       {identity.isAuthenticated && identity.friendCode && (

@@ -12,7 +12,7 @@ export type Recurrence =
   | 'monthly'
   | 'custom'
 
-export type ColorTheme = 'midnight' | 'forest' | 'copper' | 'lilac'
+export type ColorTheme = 'midnight' | 'forest' | 'copper' | 'lilac' | 'mono'
 
 export type TaskArea = 'fitness' | 'money' | 'studies' | 'habit' | 'work' | 'personal'
 

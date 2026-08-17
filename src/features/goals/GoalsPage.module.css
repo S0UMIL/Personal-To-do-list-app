@@ -12,8 +12,9 @@
 }
 
 .eyebrow {
-  font-size: var(--text-caption);
-  letter-spacing: 0.1em;
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-label);
+  letter-spacing: var(--letter-label);
   text-transform: uppercase;
   color: var(--text-muted);
   margin-bottom: var(--space-2);
@@ -21,8 +22,8 @@
 
 .title {
   font-size: clamp(2rem, 5vw, 2.5rem);
-  font-weight: 400;
-  letter-spacing: -0.03em;
+  font-weight: var(--font-weight-display);
+  letter-spacing: var(--letter-title);
 }
 
 .list {

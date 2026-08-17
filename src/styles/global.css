@@ -3,8 +3,13 @@
 :root {
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-serif: 'Source Serif 4', Georgia, serif;
   --font-mono: 'Inter', ui-monospace, monospace;
+  --font-weight-label: 700;
+  --font-weight-display: 800;
+  --font-weight-title: 700;
+  --font-weight-body: 500;
+  --letter-label: 0.14em;
+  --letter-title: -0.03em;
 
   --text-display: 2.5rem;
   --text-heading: 1.5rem;
@@ -162,8 +167,16 @@ ol {
   font-variant-numeric: tabular-nums;
 }
 
-.serif {
-  font-family: var(--font-serif);
-  font-optical-sizing: auto;
-  letter-spacing: -0.02em;
+.serif,
+.displayTitle {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-display);
+  letter-spacing: var(--letter-title);
+}
+
+.labelCaps {
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-label);
+  letter-spacing: var(--letter-label);
+  text-transform: uppercase;
 }

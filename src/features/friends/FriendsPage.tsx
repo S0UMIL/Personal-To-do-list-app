@@ -218,33 +218,8 @@ export function FriendsPage() {
     <div className={styles.page}>
       <header>
         <p className={styles.eyebrow}>Today</p>
-        <h1 className={`serif ${styles.title}`}>Friends</h1>
-        <p className={styles.lead}>
-          {identity.isAuthenticated
-            ? 'Compete on daily completion with people you add. Totals are self-reported from each device.'
-            : 'Sign in with Google to compete with real friends. Tasks stay on this device.'}
-        </p>
+        <h1 className={`displayTitle ${styles.title}`}>Leaderboard</h1>
       </header>
-
-      {identity.isAuthenticated && identity.friendCode && (
-        <section className={styles.addSection}>
-          <h2 className={styles.addLabel}>Add friend</h2>
-          <p className={styles.addHint}>
-            Enter their unique ID (e.g. <strong>{identity.friendCode}</strong> is yours).
-          </p>
-          <div className={styles.addRow}>
-            <Input
-              value={friendCodeInput}
-              onChange={(e) => setFriendCodeInput(e.target.value.toUpperCase())}
-              placeholder="N-XXXXXX"
-            />
-            <Button onClick={handleAddFriend} disabled={addLoading || !friendCodeInput.trim()}>
-              Add
-            </Button>
-          </div>
-          {addError && <p className={styles.addError}>{addError}</p>}
-        </section>
-      )}
 
       {loadingFriends && <p className={styles.loading}>Updating leaderboard…</p>}
 
@@ -303,6 +278,26 @@ export function FriendsPage() {
           )
         })}
       </ol>
+
+      {identity.isAuthenticated && identity.friendCode && (
+        <section className={styles.addSection}>
+          <h2 className={styles.addLabel}>Add friend</h2>
+          <p className={styles.addHint}>
+            Enter their unique ID (e.g. <strong>{identity.friendCode}</strong> is yours).
+          </p>
+          <div className={styles.addRow}>
+            <Input
+              value={friendCodeInput}
+              onChange={(e) => setFriendCodeInput(e.target.value.toUpperCase())}
+              placeholder="N-XXXXXX"
+            />
+            <Button onClick={handleAddFriend} disabled={addLoading || !friendCodeInput.trim()}>
+              Add
+            </Button>
+          </div>
+          {addError && <p className={styles.addError}>{addError}</p>}
+        </section>
+      )}
     </div>
   )
 }

@@ -56,7 +56,7 @@ export function DailyPickGate({ open, mode = 'initial', onClose }: DailyPickGate
       <div className={styles.panel}>
         <header className={styles.header}>
           <p className={styles.eyebrow}>Today</p>
-          <h2 id="daily-pick-title" className={`serif ${styles.title}`}>
+          <h2 id="daily-pick-title" className={`displayTitle ${styles.title}`}>
             {isEdit ? "Edit today's tasks" : "Choose today's tasks"}
           </h2>
           <p className={styles.lead}>

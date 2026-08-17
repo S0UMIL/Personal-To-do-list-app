@@ -65,7 +65,7 @@ export function CalendarPage() {
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Schedule</p>
-          <h1 className={`serif ${styles.title}`}>Calendar</h1>
+          <h1 className={`displayTitle ${styles.title}`}>Calendar</h1>
         </div>
         <div className={styles.nav}>
           <button type="button" onClick={() => shift(-1)} aria-label="Previous">

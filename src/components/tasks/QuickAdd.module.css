@@ -6,8 +6,9 @@
 
 .prompt {
   font-size: 1.65rem;
+  font-weight: var(--font-weight-display);
   color: var(--text);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--letter-title);
   margin-bottom: var(--space-1);
 }
 

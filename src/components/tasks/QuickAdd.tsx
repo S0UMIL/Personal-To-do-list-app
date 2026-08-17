@@ -110,7 +110,7 @@ export function QuickAdd({ open, onClose, editTask, defaultDate, defaultArea }: 
     >
       <div className={styles.form}>
         {!editTask && (
-          <p className={`serif ${styles.prompt}`}>What needs to get done?</p>
+          <p className={`displayTitle ${styles.prompt}`}>What needs to get done?</p>
         )}
         <input
           className={styles.titleInput}

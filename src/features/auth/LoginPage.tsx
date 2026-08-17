@@ -5,6 +5,7 @@ import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext'
 import { useCloudIdentity } from '../../hooks/useCloudIdentity'
 import { authCallbackError, hasAuthCallback } from '../../lib/authCallback'
 import { isNativePlatform } from '../../lib/authRedirect'
+import { Logo } from '../../components/ui/Logo'
 import { Button } from '../../components/ui/Button'
 import { useAppStore } from '../../store/useAppStore'
 import styles from './LoginPage.module.css'
@@ -99,8 +100,8 @@ export function LoginPage() {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <span className={styles.mark} aria-hidden />
-        <h1 className={`serif ${styles.title}`}>North</h1>
+        <Logo size={56} className={styles.logo} />
+        <h1 className={`displayTitle ${styles.title}`}>North</h1>
         <p className={styles.subtitle}>
           Sign in to compete with friends. Your tasks stay on this device.
         </p>

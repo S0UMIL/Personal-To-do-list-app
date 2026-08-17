@@ -12,7 +12,7 @@
   height: 36px;
   border-radius: calc(var(--radius-md) - 2px);
   font-size: var(--text-caption);
-  font-weight: 550;
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -26,7 +26,7 @@
 }
 
 .active {
-  background: var(--surface-elevated);
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
 }
