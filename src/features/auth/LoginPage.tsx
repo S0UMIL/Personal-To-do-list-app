@@ -6,11 +6,8 @@ import { useCloudIdentity } from '../../hooks/useCloudIdentity'
 import { authCallbackError, hasAuthCallback } from '../../lib/authCallback'
 import { isNativePlatform } from '../../lib/authRedirect'
 import { Button } from '../../components/ui/Button'
-import { Input } from '../../components/ui/Input'
 import { useAppStore } from '../../store/useAppStore'
 import styles from './LoginPage.module.css'
-
-type Mode = 'login' | 'signup'
 
 export function LoginPage() {
   const firebase = useAuth()
@@ -20,14 +17,10 @@ export function LoginPage() {
   const hydrated = useAppStore((s) => s.hydrated)
   const location = useLocation()
 
-  const [mode, setMode] = useState<Mode>('login')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(
     () => authCallbackError(location.search, location.hash),
   )
-  const [info, setInfo] = useState<string | null>(null)
 
   const callbackErr = authCallbackError(location.search, location.hash)
   const waitingOnWebCallback =
@@ -89,48 +82,15 @@ export function LoginPage() {
 
   const handleGoogle = async () => {
     setError(null)
-    setInfo(null)
     setBusy(true)
     try {
       if (supabase.configured) {
-        await supabase.signInWithGoogle(mode)
+        await supabase.signInWithGoogle()
         return
       }
       await firebase.signInGoogle()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const handleEmail = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setInfo(null)
-    if (!supabase.configured) {
-      setError('Email login requires Supabase. Use Google or continue offline.')
-      return
-    }
-    if (!email.trim() || password.length < 6) {
-      setError('Enter an email and a password of at least 6 characters.')
-      return
-    }
-    setBusy(true)
-    try {
-      if (mode === 'signup') {
-        const { needsEmailConfirm } = await supabase.signUpWithEmail(
-          email.trim(),
-          password,
-        )
-        if (needsEmailConfirm) {
-          setInfo('Check your email to confirm your account, then log in.')
-        }
-      } else {
-        await supabase.signInWithEmail(email.trim(), password)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not authenticate')
     } finally {
       setBusy(false)
     }
@@ -142,39 +102,8 @@ export function LoginPage() {
         <span className={styles.mark} aria-hidden />
         <h1 className={`serif ${styles.title}`}>North</h1>
         <p className={styles.subtitle}>
-          {mode === 'login'
-            ? 'Log in to compete with friends. Your tasks stay on this device.'
-            : 'Create an account for the friends leaderboard. Tasks stay on this device.'}
+          Sign in to compete with friends. Your tasks stay on this device.
         </p>
-
-        <div className={styles.tabs} role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'login'}
-            className={`${styles.tab} ${mode === 'login' ? styles.tabOn : ''}`}
-            onClick={() => {
-              setMode('login')
-              setError(null)
-              setInfo(null)
-            }}
-          >
-            Log in
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'signup'}
-            className={`${styles.tab} ${mode === 'signup' ? styles.tabOn : ''}`}
-            onClick={() => {
-              setMode('signup')
-              setError(null)
-              setInfo(null)
-            }}
-          >
-            Sign up
-          </button>
-        </div>
 
         {cloudReady ? (
           <>
@@ -185,42 +114,16 @@ export function LoginPage() {
               disabled={loading}
             >
               <GoogleIcon />
-              {mode === 'login' ? 'Log in with Google' : 'Sign up with Google'}
+              Continue with Google
             </Button>
 
-            <p className={styles.divider}>or email</p>
-
-            <form className={styles.form} onSubmit={handleEmail}>
-              <Input
-                label="Email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <Input
-                label="Password"
-                type="password"
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-              <Button fullWidth type="submit" disabled={loading}>
-                {mode === 'login' ? 'Log in' : 'Create account'}
-              </Button>
-            </form>
-
             {error && <p className={styles.error}>{error}</p>}
-            {info && <p className={styles.hint}>{info}</p>}
           </>
         ) : (
           <div className={styles.setup}>
             <p>
               Cloud login is not configured yet. Add Supabase keys to <code>.env</code>{' '}
-              to enable Google or email sign-in.
+              to enable Google sign-in.
             </p>
             <p className={styles.setupHint}>See <code>.env.example</code> in the project.</p>
           </div>

@@ -20,7 +20,6 @@ export function ProfilePage() {
   const user = useAppStore((s) => s.user)
   const setUserName = useAppStore((s) => s.setUserName)
   const updatePreferences = useAppStore((s) => s.updatePreferences)
-  const resetDemoData = useAppStore((s) => s.resetDemoData)
   const googleTasks = useAppStore((s) => s.googleTasks)
   const connectGoogleTasks = useAppStore((s) => s.connectGoogleTasks)
   const disconnectGoogleTasks = useAppStore((s) => s.disconnectGoogleTasks)
@@ -237,13 +236,6 @@ export function ProfilePage() {
       </section>
 
       <SupabaseConnectionPanel />
-
-      <section className={styles.section}>
-        <h2>Data</h2>
-        <Button variant="secondary" onClick={resetDemoData}>
-          Reset demo data
-        </Button>
-      </section>
 
       {identity.isAuthenticated && (
         <section className={styles.section}>
