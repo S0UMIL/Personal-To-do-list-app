@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext'
@@ -9,6 +9,23 @@ import { Logo } from '../../components/ui/Logo'
 import { Button } from '../../components/ui/Button'
 import { useAppStore } from '../../store/useAppStore'
 import styles from './LoginPage.module.css'
+
+function LoginShell({
+  eyebrow,
+  children,
+}: {
+  eyebrow: string
+  children: ReactNode
+}) {
+  return (
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>{eyebrow}</p>
+      </header>
+      {children}
+    </div>
+  )
+}
 
 export function LoginPage() {
   const firebase = useAuth()
@@ -52,27 +69,23 @@ export function LoginPage() {
 
   if (waitingOnWebCallback || waitingOnNativeOAuth || identityLoading) {
     return (
-      <div className={styles.page}>
-        <div className={styles.card}>
-          <p className={styles.hint}>
-            {waitingOnWebCallback || waitingOnNativeOAuth
-              ? 'Finishing Google sign-in…'
-              : 'Loading…'}
-          </p>
-          {error && <p className={styles.error}>{error}</p>}
-        </div>
-      </div>
+      <LoginShell eyebrow="Sign in">
+        <p className={styles.hint}>
+          {waitingOnWebCallback || waitingOnNativeOAuth
+            ? 'Finishing Google sign-in…'
+            : 'Loading…'}
+        </p>
+        {error && <p className={styles.error}>{error}</p>}
+      </LoginShell>
     )
   }
 
   if (isAuthenticated || isOfflineMode) {
     if (!hydrated) {
       return (
-        <div className={styles.page}>
-          <div className={styles.card}>
-            <p className={styles.hint}>Loading…</p>
-          </div>
-        </div>
+        <LoginShell eyebrow="Sign in">
+          <p className={styles.hint}>Loading…</p>
+        </LoginShell>
       )
     }
     return <Navigate to={onboardingComplete ? '/' : '/onboarding'} replace />
@@ -98,43 +111,43 @@ export function LoginPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <Logo size={56} className={styles.logo} />
+    <LoginShell eyebrow="Sign in">
+      <div className={styles.hero}>
+        <Logo size={64} className={styles.logo} />
         <h1 className={`displayTitle ${styles.title}`}>North</h1>
-        <p className={styles.subtitle}>
-          Sign in to compete with friends. Your tasks stay on this device.
+        <p className={styles.subline}>
+          Compete on the leaderboard. Your tasks stay on this device.
         </p>
+      </div>
 
+      <div className={styles.actions}>
         {cloudReady ? (
           <>
-            <Button
-              fullWidth
-              size="lg"
-              onClick={handleGoogle}
-              disabled={loading}
-            >
+            <Button fullWidth size="lg" onClick={handleGoogle} disabled={loading}>
               <GoogleIcon />
               Continue with Google
             </Button>
-
             {error && <p className={styles.error}>{error}</p>}
           </>
         ) : (
           <div className={styles.setup}>
             <p>
-              Cloud login is not configured yet. Add Supabase keys to <code>.env</code>{' '}
-              to enable Google sign-in.
+              Cloud login is not configured yet. Add Supabase keys to <code>.env</code> to
+              enable Google sign-in.
             </p>
-            <p className={styles.setupHint}>See <code>.env.example</code> in the project.</p>
+            <p className={styles.setupHint}>
+              See <code>.env.example</code> in the project.
+            </p>
           </div>
         )}
+      </div>
 
-        <button type="button" className={styles.offline} onClick={firebase.continueOffline}>
-          Continue offline (local only)
+      <div className={styles.footer}>
+        <button type="button" className={styles.offlineAction} onClick={firebase.continueOffline}>
+          Continue offline →
         </button>
       </div>
-    </div>
+    </LoginShell>
   )
 }
 
