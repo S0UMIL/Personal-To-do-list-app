@@ -21,6 +21,10 @@ export interface UserPreferences {
   colorTheme: ColorTheme
   weekStartsOn: 0 | 1
   notifications: boolean
+  /** Local-time morning reminder in HH:mm (24h). */
+  morningReminderTime: string
+  /** Subtle tick when a task is marked complete. */
+  completionSound: boolean
   defaultReminder: boolean
   hapticFeedback: boolean
   /** Tasks completed per day required to count as a successful streak day. */

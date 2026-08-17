@@ -34,6 +34,7 @@ import { toDateKey } from '../lib/dates'
 import { inferTimeOfDay } from '../lib/stats'
 import { isCompletedOnDate } from '../lib/taskSchedule'
 import { normalizeColorTheme } from '../lib/themes'
+import { playTaskCompletionSound } from '../lib/completionSound'
 
 export interface CreateTaskInput {
   title: string
@@ -283,6 +284,10 @@ export const useAppStore = create<AppState>()(
         ) {
           navigator.vibrate(12)
         }
+
+        if (completing && get().user.preferences.completionSound) {
+          playTaskCompletionSound()
+        }
       },
 
       deleteTask: (id) =>
@@ -388,6 +393,12 @@ export const useAppStore = create<AppState>()(
           const min = state.user.preferences.dailyMinimum
           if (typeof min !== 'number' || min < 1 || min > 20) {
             state.user.preferences.dailyMinimum = 5
+          }
+          if (!state.user.preferences.morningReminderTime) {
+            state.user.preferences.morningReminderTime = '08:00'
+          }
+          if (typeof state.user.preferences.completionSound !== 'boolean') {
+            state.user.preferences.completionSound = true
           }
           if (!state.friends?.length) {
             state.friends = seedFriends

@@ -9,6 +9,9 @@ import { useWidgetBridgeSync } from '../../hooks/useWidgetBridgeSync'
 import { useWidgetRouteNavigation } from '../../hooks/useWidgetRouteNavigation'
 import { useDayCycle } from '../../hooks/useDayCycle'
 import { useGoogleTasksSync } from '../../hooks/useGoogleTasksSync'
+import { useNotificationPermission } from '../../hooks/useNotificationPermission'
+import { useNotificationScheduler } from '../../hooks/useNotificationScheduler'
+import { useNotificationNavigation } from '../../hooks/useNotificationNavigation'
 import type { Task, TaskArea } from '../../types'
 import styles from './AppShell.module.css'
 
@@ -44,7 +47,11 @@ export function AppShell() {
   useProgressSync()
   useWidgetBridgeSync()
   useWidgetRouteNavigation()
+  useNotificationPermission()
+  useNotificationScheduler()
+  useNotificationNavigation()
   useDayCycle()
+  useGoogleTasksSync()
   useGoogleTasksSync()
 
   useEffect(() => {

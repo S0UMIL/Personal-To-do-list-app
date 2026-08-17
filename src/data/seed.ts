@@ -24,6 +24,8 @@ export const seedUser: User = {
     colorTheme: 'midnight',
     weekStartsOn: 1,
     notifications: true,
+    morningReminderTime: '08:00',
+    completionSound: true,
     defaultReminder: false,
     hapticFeedback: true,
     dailyMinimum: 5,

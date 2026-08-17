@@ -9,6 +9,8 @@ import { Button } from '../../components/ui/Button'
 import { COLOR_THEMES } from '../../lib/themes'
 import { connectGoogleTasksApi } from '../../services/cloud'
 import { ensureNorthTaskList } from '../../services/googleTasks'
+import { Capacitor } from '@capacitor/core'
+import { requestNotificationPermission } from '../../lib/notifications/scheduleNotifications'
 import { SupabaseConnectionPanel } from '../../components/supabase/SupabaseConnectionPanel'
 import styles from './ProfilePage.module.css'
 
@@ -100,10 +102,32 @@ export function ProfilePage() {
         <h2>Preferences</h2>
         <ToggleRow
           label="Notifications"
-          description="Reminders for timed tasks"
+          description="Morning reminders and daily progress updates"
           checked={user.preferences.notifications}
-          onChange={(v) => updatePreferences({ notifications: v })}
+          onChange={(v) => {
+            updatePreferences({ notifications: v })
+            if (v && Capacitor.isNativePlatform()) {
+              void requestNotificationPermission()
+            }
+          }}
         />
+        {user.preferences.notifications && (
+          <label className={styles.selectRow}>
+            <div>
+              <span className={styles.toggleLabel}>Morning reminder</span>
+              <span className={styles.toggleDesc}>
+                Daily nudge to choose today&apos;s tasks
+              </span>
+            </div>
+            <input
+              type="time"
+              value={user.preferences.morningReminderTime ?? '08:00'}
+              onChange={(e) =>
+                updatePreferences({ morningReminderTime: e.target.value || '08:00' })
+              }
+            />
+          </label>
+        )}
         <ToggleRow
           label="Default reminder"
           description="Suggest a reminder on new tasks"
@@ -115,6 +139,12 @@ export function ProfilePage() {
           description="Subtle vibration on completion"
           checked={user.preferences.hapticFeedback}
           onChange={(v) => updatePreferences({ hapticFeedback: v })}
+        />
+        <ToggleRow
+          label="Completion sound"
+          description="Gentle tick when you check off a task"
+          checked={user.preferences.completionSound ?? true}
+          onChange={(v) => updatePreferences({ completionSound: v })}
         />
         <label className={styles.selectRow}>
           <div>
